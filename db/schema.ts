@@ -42,3 +42,5 @@ identifier: text('identifier').notNull(),
  expiresAt: timestamp('expires_at').notNull(),
  createdAt: timestamp('created_at').$defaultFn(() => new Date()),
  updatedAt: timestamp('updated_at').$defaultFn(() => new Date())});
+
+ export const schema = { user, session, account, verification };

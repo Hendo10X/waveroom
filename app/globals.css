@@ -112,6 +112,14 @@
   --sidebar-ring: oklch(0.551 0.027 264.364);
 }
 
+.font-martian-mono {
+  font-family: var(--font-martian-mono);
+}
+
+.font-inter {
+  font-family: var(--font-inter);
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
