@@ -1,43 +1,44 @@
-import { integer, text, timestamp, pgTable, boolean } from "drizzle-orm/pg-core";
+import { pgTable, text, timestamp, boolean, integer } from "drizzle-orm/pg-core";
 
-export const users = pgTable("users", {
-  id: integer("id").primaryKey(),
-  name: text("name").notNull(),
-  email: text("email").notNull(),
-  password: text("password").notNull(),
-  avatarUrl: text("avatar_url"),
-  bio: text("bio"),
-  location: text("location"),
-  website: text("website"),
-  isVerified: boolean("is_verified").default(false).notNull(),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+export const user = pgTable("user", {
+id: text('id').primaryKey(),
+name: text('name').notNull(),
+email: text('email').notNull().unique(),
+emailVerified: boolean('email_verified').$defaultFn(() => false).notNull(),
+image: text('image'),
+createdAt: timestamp('created_at').$defaultFn(() => new Date()).notNull(),
+updatedAt: timestamp('updated_at').$defaultFn(() => new Date()).notNull()
 });
 
-export const threads = pgTable("threads", {
-  id: integer("id").primaryKey(),
-  userId: integer("user_id").notNull().references(() => users.id),
-  title: text("title").notNull(),
-  description: text("description"),
-  musicUrl: text("music_url"),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
-});
+export const session = pgTable("session", {	
+id: text('id').primaryKey(),
+expiresAt: timestamp('expires_at').notNull(),
+ token: text('token').notNull().unique(),
+ createdAt: timestamp('created_at').notNull(),
+ updatedAt: timestamp('updated_at').notNull(),
+ ipAddress: text('ip_address'),
+ userAgent: text('user_agent'),
+ userId: text('user_id').notNull().references(()=> user.id, { onDelete: 'cascade' })});
 
-export const posts = pgTable("posts", {
-  id: integer("id").primaryKey(),
-  threadId: integer("thread_id").notNull().references(() => threads.id),
-  userId: integer("user_id").notNull().references(() => users.id),
-  content: text("content").notNull(),
-  musicUrl: text("music_url"),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
-});
+export const account = pgTable("account", {
+id: text('id').primaryKey(),
+accountId: text('account_id').notNull(),
+ providerId: text('provider_id').notNull(),
+ userId: text('user_id').notNull().references(()=> user.id, { onDelete: 'cascade' }),
+ accessToken: text('access_token'),
+ refreshToken: text('refresh_token'),
+ idToken: text('id_token'),
+ accessTokenExpiresAt: timestamp('access_token_expires_at'),
+ refreshTokenExpiresAt: timestamp('refresh_token_expires_at'),
+ scope: text('scope'),
+ password: text('password'),
+ createdAt: timestamp('created_at').notNull(),
+ updatedAt: timestamp('updated_at').notNull()});
 
-export const postLikes = pgTable("post_likes", {
-  id: integer("id").primaryKey(),
-  postId: integer("post_id").notNull().references(() => posts.id),
-  userId: integer("user_id").notNull().references(() => users.id),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-});
-
+export const verification = pgTable("verification", {
+id: text('id').primaryKey(),
+identifier: text('identifier').notNull(),
+ value: text('value').notNull(),
+ expiresAt: timestamp('expires_at').notNull(),
+ createdAt: timestamp('created_at').$defaultFn(() => new Date()),
+ updatedAt: timestamp('updated_at').$defaultFn(() => new Date())});
