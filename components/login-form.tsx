@@ -61,7 +61,7 @@ export function LoginForm({
   }
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
-      <Card className="shadow-none">
+      <Card className="shadow-none bg-background text-foreground">
         <CardHeader>
           <CardTitle className="text-2xl tracking-tight font-bold text-center font-instrument-serif text-primary">
            Waveroom
