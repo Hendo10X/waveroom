@@ -68,7 +68,7 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <Toaster/>
+          <Toaster className="bg-background text-foreground"/>
           {children}
         </ThemeProvider>
       </body>

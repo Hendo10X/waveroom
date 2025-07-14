@@ -15,17 +15,15 @@ export default async function DashboardPage() {
  
     return (
         <div className="flex flex-col h-screen">
-            <div className="flex justify-end p-4">
-                <Logout />
-                <div className="ml-2 flex items-center">
+            <div className="flex justify-end p-4 gap-2">
+                  <div className="flex justify-center items-center h-full">
+                    <h1 className="text-md tracking-tighter font-dm-mono">hey,{session.user.name}</h1>
+                </div> 
+                <div className="flex items-center gap-4">
+                    <Logout />
                     <ThemeToggle />
+
                 </div>
-            </div>
-            
-               
-            
-            <div className="flex justify-center items-center h-full">
-                <h1 className="text-md tracking-tighter font-dm-mono">Welcome {session.user.name}</h1>
             </div>
             
         </div>
