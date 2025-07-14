@@ -4,6 +4,8 @@ import { Martian_Mono } from "next/font/google";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { Instrument_Serif } from "next/font/google";
+import { Toaster } from "@/components/ui/sonner"
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -45,6 +47,8 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${martianMono.variable} ${inter.variable} ${instrumentSerif.variable} antialiased`}
       >
+
+        <Toaster/>
         {children}
       </body>
     </html>

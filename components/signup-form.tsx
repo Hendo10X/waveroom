@@ -27,11 +27,12 @@ import { useState } from "react"
 import { Loader2 } from "lucide-react"
 
 const formSchema = z.object({
+  name: z.string().min(1, { message: "Name is required" }),
   email: z.string().email({ message: "Please enter a valid email address." }),
   password: z.string().min(8, { message: "Password must be at least 8 characters." }),
 })
 
-export function LoginForm({
+export function SignupForm({
   
   
   className,
@@ -42,6 +43,7 @@ export function LoginForm({
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      name: "",
       email: "",
       password: "",
     },
@@ -50,10 +52,10 @@ export function LoginForm({
   // 2. Define a submit handler.
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true)
-    const { success, message } = await signIn(values.email, values.password)
+    const { success, message } = await signUp(values.name, values.email, values.password)
     if (success) {
       toast.success(message)
-      router.push("/dashboard")
+      router.push("/login")
     } else {
       toast.error(message)
     }
@@ -67,7 +69,7 @@ export function LoginForm({
            Waveroom
           </CardTitle>
           <CardDescription className="font-inter text-sm text-center text-muted-foreground">
-            Enter your email below to login 
+            Enter your email below to sign up 
           </CardDescription>
         </CardHeader> 
         <CardContent>
@@ -77,7 +79,22 @@ export function LoginForm({
               <div className="grid gap-3">
                 <FormField
           control={form.control}
-          name="email"
+          name="name"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Name</FormLabel>
+              <FormControl>
+                <Input placeholder="John Doe" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+              </div>
+              <div className="grid gap-3">
+                <FormField
+                control={form.control}
+                name="email"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Email</FormLabel>
@@ -103,22 +120,21 @@ export function LoginForm({
                   </FormItem>
                 )}
               />
-              <a href="#" className="ml-auto text-sm text-muted-foreground hover:text-primary hover:underline">Forgot password?</a>
               
               </div>
               <div className="flex flex-col gap-3">
                 <Button type="submit" className="w-full bg-primary hover:bg-primary/90" disabled={isLoading}>
-                  {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Login"}
+                  {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Sign up"}
                 </Button>
                 <Button variant="outline" className="w-full">
-                  Login with Google
+                  Sign up with Google
                   </Button>
               </div>
             </div>
             <div className="mt-4 text-center text-sm">
-              Don&apos;t have an account?{" "}
-              <a href="/signup" className="underline underline-offset-4">
-                Sign up
+              Already have an account?{" "}
+              <a href="/login" className="underline underline-offset-4">
+                Login
               </a>
             </div>
           </form>
