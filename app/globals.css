@@ -120,6 +120,10 @@
   font-family: var(--font-inter);
 }
 
+.font-instrument-serif {
+  font-family: var(--font-instrument-serif);
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
