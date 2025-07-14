@@ -25,7 +25,7 @@ export default async function DashboardPage() {
                
             
             <div className="flex justify-center items-center h-full">
-                <h1 className="text-md font-archivo-narrow">Welcome {session.user.name}</h1>
+                <h1 className="text-md tracking-tighter font-dm-mono">Welcome {session.user.name}</h1>
             </div>
             
         </div>

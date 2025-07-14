@@ -128,6 +128,10 @@
   font-family: var(--font-archivo-narrow);
 }
 
+.font-dm-mono {
+  font-family: var(--font-dm-mono);
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
