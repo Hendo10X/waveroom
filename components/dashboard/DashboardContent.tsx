@@ -52,7 +52,7 @@ const sectionComponents: Record<SectionKey, React.ComponentType<{ data: SectionD
 
 const STYLES = {
   sidebar: {
-    base: "w-64 bg-background text-foreground flex flex-col py-8 px-4 ml-20",
+    base: "md:fixed md:top-0 md:left-0 md:h-screen md:w-64 bg-background text-foreground flex flex-col py-8 px-4 md:ml-20 z-30",
     hidden: "hidden",
   },
   button: {
@@ -154,7 +154,7 @@ const MobileNavigation = ({
   active: SectionKey; 
   onSectionChange: (section: SectionKey) => void; 
 }) => (
-  <div className="bg-background text-foreground border-t border-neutral-200 dark:border-neutral-800">
+  <div className="fixed bottom-0 left-0 w-full z-40 bg-background text-foreground border-t border-neutral-200 dark:border-neutral-800 md:relative md:z-auto">
     <nav className="flex justify-around py-4 px-4 gap-2">
       {sections.map((section) => (
         <MobileButton
@@ -195,26 +195,25 @@ export function DashboardContent({ userName }: DashboardContentProps) {
   };
 
   return (
-    <div className="flex flex-col h-screen bg-background text-foreground font-inter tracking-tight text-sm">
-      <div className="flex flex-1">
-        <Sidebar 
-          active={active} 
-          onSectionChange={handleSectionChange} 
-          isMobile={isMobile}
-          userName={userName}
-        />
+    <div className="flex h-screen bg-background text-foreground font-inter tracking-tight text-sm">
+      <Sidebar 
+        active={active} 
+        onSectionChange={handleSectionChange} 
+        isMobile={isMobile}
+        userName={userName}
+      />
+      <div className="flex-1 h-screen overflow-y-auto md:ml-64 pb-20 md:pb-0">
         <MainContent 
           activeSection={active} 
           sectionData={data[active]} 
         />
+        {isMobile && (
+          <MobileNavigation 
+            active={active} 
+            onSectionChange={handleSectionChange} 
+          />
+        )}
       </div>
-      
-      {isMobile && (
-        <MobileNavigation 
-          active={active} 
-          onSectionChange={handleSectionChange} 
-        />
-      )}
     </div>
   );
 } 
