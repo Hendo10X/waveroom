@@ -43,4 +43,16 @@ identifier: text('identifier').notNull(),
  createdAt: timestamp('created_at').$defaultFn(() => new Date()),
  updatedAt: timestamp('updated_at').$defaultFn(() => new Date())});
 
- export const schema = { user, session, account, verification };
+export const post = pgTable("post", {
+  id: text('id').primaryKey(),
+  content: text('content').notNull(),
+  authorId: text('author_id').notNull().references(() => user.id, { onDelete: 'cascade' }),
+  createdAt: timestamp('created_at').$defaultFn(() => new Date()).notNull(),
+  updatedAt: timestamp('updated_at').$defaultFn(() => new Date()).notNull(),
+  isPublished: boolean('is_published').$defaultFn(() => true).notNull(),
+  likesCount: integer('likes_count').$defaultFn(() => 0).notNull(),
+  commentsCount: integer('comments_count').$defaultFn(() => 0).notNull(),
+ 
+});
+
+ export const schema = { user, session, account, verification, post };
