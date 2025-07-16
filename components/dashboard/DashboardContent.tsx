@@ -154,7 +154,7 @@ const MobileNavigation = ({
   active: SectionKey; 
   onSectionChange: (section: SectionKey) => void; 
 }) => (
-  <div className="fixed bottom-0 left-0 w-full z-40 bg-background text-foreground border-t border-neutral-200 dark:border-neutral-800 md:relative md:z-auto">
+  <div className="fixed bottom-0 left-0 w-full bg-background text-foreground border-t border-neutral-200 dark:border-neutral-800 z-40">
     <nav className="flex justify-around py-4 px-4 gap-2">
       {sections.map((section) => (
         <MobileButton
@@ -207,13 +207,13 @@ export function DashboardContent({ userName }: DashboardContentProps) {
           activeSection={active} 
           sectionData={data[active]} 
         />
-        {isMobile && (
-          <MobileNavigation 
-            active={active} 
-            onSectionChange={handleSectionChange} 
-          />
-        )}
       </div>
+      {isMobile && (
+        <MobileNavigation 
+          active={active} 
+          onSectionChange={handleSectionChange} 
+        />
+      )}
     </div>
   );
 } 
