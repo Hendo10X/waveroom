@@ -1,19 +1,21 @@
 "use client";
 
 import { useState } from "react";
-import dataJson from "./data.json";
+import dataJson from "@/app/dashboard/data.json";
 import { useIsMobile } from "@/hooks/use-mobile";
 import {
   IconMessageCircle,
   IconChartBar,
   IconPlaylist,
   IconBookmark,
+  IconUser,
 } from "@tabler/icons-react";
-import { DiscussionSection } from "@/components/prototype/DiscussionSection";
-import { ChartsSection } from "@/components/prototype/ChartsSection";
-import { PlaylistSection } from "@/components/prototype/PlaylistSection";
-import { SavedSection } from "@/components/prototype/SavedSection";
-
+import { DiscussionSection } from "@/components/sections/DiscussionSection";
+import { ChartsSection } from "@/components/sections/ChartsSection";
+import { PlaylistSection } from "@/components/sections/PlaylistSection";
+import { SavedSection } from "@/components/sections/SavedSection";
+import { Logout } from "@/components/logout";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 type SectionKey = "discussion" | "charts" | "playlists" | "saved";
 
@@ -28,6 +30,9 @@ interface Section {
   icon: React.ReactNode;
 }
 
+interface DashboardContentProps {
+  userName: string;
+}
 
 const data: Record<SectionKey, SectionData> = dataJson;
 
@@ -45,7 +50,6 @@ const sectionComponents: Record<SectionKey, React.ComponentType<{ data: SectionD
   saved: SavedSection,
 };
 
-
 const STYLES = {
   sidebar: {
     base: "w-64 bg-background text-foreground flex flex-col py-8 px-4 ml-20",
@@ -62,7 +66,6 @@ const STYLES = {
     inactive: "hover:bg-[#a2ee2f] hover:text-black dark:hover:bg-[#a2ee2f] dark:hover:text-black",
   },
 } as const;
-
 
 const SidebarButton = ({ 
   section, 
@@ -109,15 +112,17 @@ const MobileButton = ({
 const Sidebar = ({ 
   active, 
   onSectionChange, 
-  isMobile 
+  isMobile,
+  userName
 }: { 
   active: SectionKey; 
   onSectionChange: (section: SectionKey) => void; 
-  isMobile: boolean; 
+  isMobile: boolean;
+  userName: string;
 }) => (
   <aside className={`${STYLES.sidebar.base} ${isMobile ? STYLES.sidebar.hidden : ''}`}>
     <h2 className="text-sm font-bold mb-8 text-foreground ml-3">Waveroom</h2>
-    <nav className="flex flex-col gap-2">
+    <nav className="flex flex-col gap-2 flex-1">
       {sections.map((section) => (
         <SidebarButton
           key={section.key}
@@ -127,6 +132,18 @@ const Sidebar = ({
         />
       ))}
     </nav>
+    
+    {/* Bottom section with user info, theme toggle, and logout */}
+    <div className="mt-auto pt-8 border-t border-neutral-200 dark:border-neutral-800">
+      <div className="flex items-center gap-3 mb-4 px-4 py-2 rounded-lg bg-neutral-100 dark:bg-neutral-800">
+        <IconUser className="size-5 text-foreground" />
+        <span className="text-sm font-medium text-foreground">hey, {userName}</span>
+      </div>
+      <div className="flex items-center gap-2 px-4">
+        <ThemeToggle />
+        <Logout />
+      </div>
+    </div>
   </aside>
 );
 
@@ -169,8 +186,7 @@ const MainContent = ({
   );
 };
 
-
-export default function PrototypePage() {
+export function DashboardContent({ userName }: DashboardContentProps) {
   const [active, setActive] = useState<SectionKey>("discussion");
   const isMobile = useIsMobile();
 
@@ -184,7 +200,8 @@ export default function PrototypePage() {
         <Sidebar 
           active={active} 
           onSectionChange={handleSectionChange} 
-          isMobile={isMobile} 
+          isMobile={isMobile}
+          userName={userName}
         />
         <MainContent 
           activeSection={active} 
@@ -200,4 +217,4 @@ export default function PrototypePage() {
       )}
     </div>
   );
-}
+} 
