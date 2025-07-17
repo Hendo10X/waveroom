@@ -13,7 +13,7 @@ export function ChartTable({ tracks }: { tracks: Track[] }) {
   return (
     <Table>
       <TableHeader>
-        <TableRow className=" hover:bg-[#1E1E1E]">
+        <TableRow>
           <TableHead>#</TableHead>
           <TableHead>Song</TableHead>
           <TableHead>Artist</TableHead>
@@ -22,7 +22,7 @@ export function ChartTable({ tracks }: { tracks: Track[] }) {
       </TableHeader>
       <TableBody>
         {tracks.map((track) => (
-          <TableRow key={track.rank}>
+          <TableRow className=" hover:cursor-pointer" key={track.rank}>
             <TableCell>{track.rank}</TableCell>
             <TableCell>
               <a href={track.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:underline">
@@ -30,8 +30,8 @@ export function ChartTable({ tracks }: { tracks: Track[] }) {
                 <span>{track.name}</span>
               </a>
             </TableCell>
-            <TableCell>{track.artist}</TableCell>
-            <TableCell>{track.album}</TableCell>
+            <TableCell className="font-dm-mono">{track.artist}</TableCell>
+            <TableCell className="font-dm-mono">{track.album}</TableCell>
           </TableRow>
         ))}
       </TableBody>

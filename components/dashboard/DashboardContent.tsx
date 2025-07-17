@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import dataJson from "@/app/dashboard/data.json";
 import { useIsMobile } from "@/hooks/use-mobile";
 import {
@@ -133,7 +134,6 @@ const Sidebar = ({
       ))}
     </nav>
     
-    {/* Bottom section with user info, theme toggle, and logout */}
     <div className="mt-auto pt-8 border-t border-neutral-200 dark:border-neutral-800">
       <div className="flex items-center gap-3 mb-4 px-4 py-2 rounded-lg bg-neutral-100 dark:bg-neutral-800">
         <IconUser className="size-5 text-foreground" />
@@ -187,11 +187,39 @@ const MainContent = ({
 };
 
 export function DashboardContent({ userName }: DashboardContentProps) {
-  const [active, setActive] = useState<SectionKey>("discussion");
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  
+  const getInitialSection = (): SectionKey => {
+    if (typeof window !== 'undefined') {
+      const storedSection = localStorage.getItem('waveroom-active-section') as SectionKey;
+      if (storedSection && sections.some(s => s.key === storedSection)) {
+        return storedSection;
+      }
+    }
+    
+    const sectionParam = searchParams.get('section') as SectionKey;
+    if (sectionParam && sections.some(s => s.key === sectionParam)) {
+      return sectionParam;
+    }
+    
+    return "discussion";
+  };
+  
+  const [active, setActive] = useState<SectionKey>(getInitialSection);
   const isMobile = useIsMobile();
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('waveroom-active-section', active);
+    }
+  }, [active]);
 
   const handleSectionChange = (section: SectionKey) => {
     setActive(section);
+    const params = new URLSearchParams(searchParams);
+    params.set('section', section);
+    router.push(`/dashboard?${params.toString()}`, { scroll: false });
   };
 
   return (
@@ -202,7 +230,7 @@ export function DashboardContent({ userName }: DashboardContentProps) {
         isMobile={isMobile}
         userName={userName}
       />
-      <div className="flex-1 h-screen overflow-y-auto md:ml-64 pb-20 md:pb-0">
+      <div className="flex-1 h-screen overflow-y-auto md:ml-64 md:pb-0">
         <MainContent 
           activeSection={active} 
           sectionData={data[active]} 

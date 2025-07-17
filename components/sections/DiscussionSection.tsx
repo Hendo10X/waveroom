@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { createPost, getPosts } from "@/lib/post";
 import { authClient } from "@/lib/auth-client";
 import { getUserById } from "@/lib/user";
-import { Loader2 } from "lucide-react";
+import { Loader2, MessageCircle, Heart } from "lucide-react";
 
 function formatDateAndTime(dateString: string) {
   const date = new Date(dateString);
@@ -30,6 +30,7 @@ export function DiscussionSection({ data }: { data: { title: string; content: st
   const [authorNames, setAuthorNames] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [likedPosts, setLikedPosts] = useState<Set<string>>(new Set());
   const { data: session } = authClient.useSession();
 
   async function fetchPosts() {
@@ -66,6 +67,23 @@ export function DiscussionSection({ data }: { data: { title: string; content: st
     setSubmitting(false);
   }
 
+  const handleLike = (postId: string) => {
+    setLikedPosts(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(postId)) {
+        newSet.delete(postId);
+      } else {
+        newSet.add(postId);
+      }
+      return newSet;
+    });
+  };
+
+  const handleComment = (postId: string) => {
+    // TODO: Implement comment functionality
+    console.log('Comment on post:', postId);
+  };
+
   return (
     <div className="flex flex-col gap-4 ml-2 md:ml-7">
       <form onSubmit={handleSubmit} className="flex flex-col gap-2">
@@ -95,11 +113,31 @@ export function DiscussionSection({ data }: { data: { title: string; content: st
           posts.map(post => (
             <div key={post.id} className="border-b border-neutral-200 dark:border-neutral-800  p-4 bg-background w-[95%] md:w-160">
               <div className="flex items-center gap-2 mb-1">
-                <span className="text-sm font-semibold text-foreground font-dm-mono tracking-wide">@{authorNames[post.authorId] || "..."}</span>
+                <span className="text-sm font-semibold text-foreground">@{authorNames[post.authorId] || "..."}</span>
                 <span className="text-xs text-muted-foreground">{formatDateAndTime(post.createdAt)}</span>
               </div>
-              <div className="text-sm text-muted-foreground whitespace-pre-line">{post.content}</div>
+              <div className="text-sm text-muted-foreground whitespace-pre-line mb-3">{post.content}</div>
               
+              <div className="flex items-center gap-4 pt-2 border-neutral-100 dark:border-neutral-700">
+                <button
+                  onClick={() => handleComment(post.id)}
+                  className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  <MessageCircle className="w-4 h-4" />
+                  <span className="text-xs">Comment</span>
+                </button>
+                <button
+                  onClick={() => handleLike(post.id)}
+                  className={`flex items-center gap-2 transition-colors ${
+                    likedPosts.has(post.id) 
+                      ? 'text-red-500 hover:text-red-600' 
+                      : 'text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  <Heart className={`w-4 ${likedPosts.has(post.id) ? 'fill-current' : ''}`} />
+                  <span className="text-xs">Like</span>
+                </button>
+              </div>
             </div>
           ))
         )}

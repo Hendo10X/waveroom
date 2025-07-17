@@ -1,74 +1,107 @@
-/* // Replace these with your actual Spotify credentials
-  const clientId = "b0c45719424b460b875cd70dcd3394b5";
-  const clientSecret = "38525951033f4cd4a405505359e32d66";
+import { Buffer } from 'buffer';
 
-console.log(clientId, clientSecret);
-let accessToken: string | null = null;
-let tokenExpiresAt = 0;
-
-async function getAccessToken() {
-  if (accessToken && Date.now() < tokenExpiresAt) return accessToken;
-  console.log(accessToken)
-
-  if (!clientId || !clientSecret) {
-    console.error("SPOTIFY_CLIENT_ID or SPOTIFY_CLIENT_SECRET is missing.");
-    throw new Error("Spotify credentials missing");
-  }
-
-  const res = await fetch("https://accounts.spotify.com/api/token", {
-    method: "POST",
-    headers: {
-      Authorization: "Basic " + Buffer.from(clientId + ":" + clientSecret).toString("base64"),
-      "Content-Type": "application/x-www-form-urlencoded",
-    },
-    body: "grant_type=client_credentials",
-  });
-
-  if (!res.ok) {
-    const errorText = await res.text();
-    console.error("Failed to fetch access token", res.status, errorText);
-    throw new Error("Failed to fetch access token: " + errorText);
-  }
-
-  const data = await res.json();
-  accessToken = data.access_token;
-  tokenExpiresAt = Date.now() + (data.expires_in - 60) * 1000; // refresh 1 min early
-  return accessToken;
+export interface Track {
+  id: string;
+  name: string;
+  artist: string;
+  album: string;
+  image: string;
 }
 
-export async function getSpotifyTopTracks() {
-  const token = await getAccessToken();
-  const playlistId = "37i9dQZEVXbMDoHDwVN2tF";
-  const res = await fetch(
-    `https://api.spotify.com/v1/playlists/${playlistId}?limit=20`,
+export async function getAccessToken(): Promise<string> {
+  const clientId = process.env.NEXT_PUBLIC_SPOTIFY_CLIENT_ID || '';
+  const clientSecret = process.env.NEXT_PUBLIC_SPOTIFY_CLIENT_SECRET || '';
+  const response = await fetch('https://accounts.spotify.com/api/token', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      Authorization: `Basic ${Buffer.from(`${clientId}:${clientSecret}`).toString('base64')}`,
+    },
+    body: 'grant_type=client_credentials',
+  });
+  const data = await response.json();
+  return data.access_token;
+}
+
+export async function getTopPlaylistId(accessToken: string): Promise<string> {
+  const response = await fetch(
+    'https://api.spotify.com/v1/search?q=Top%2050%20-%20Global&type=playlist&limit=10',
     {
-      headers: { Authorization: `Bearer ${token}` },
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
     }
   );
-  if (!res.ok) return [];
-  const data = await res.json();
-  return (data.tracks?.items || []).slice(0, 20).map((item: any, i: number) => ({
-    rank: i + 1,
+  const data = await response.json();
+  if (!data.playlists || !Array.isArray(data.playlists.items)) {
+    throw new Error('Spotify API did not return playlists as expected');
+  }
+  const playlists = data.playlists.items;
+  const officialPlaylist = playlists.find(
+    (playlist: any) => playlist && playlist.owner && playlist.owner.id === 'spotify'
+  );
+  if (!officialPlaylist) {
+    throw new Error('Official Top 50 - Global playlist not found');
+  }
+  return officialPlaylist.id;
+}
+
+export async function getTopTracks(accessToken: string, playlistId: string): Promise<Track[]> {
+  const response = await fetch(
+    `https://api.spotify.com/v1/playlists/${playlistId}/tracks?limit=20`,
+    {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    }
+  );
+  const data = await response.json();
+  return data.items.map((item: any) => ({
+    id: item.track.id,
     name: item.track.name,
-    artist: item.track.artists.map((a: any) => a.name).join(", "),
+    artist: item.track.artists.map((artist: any) => artist.name).join(', '),
     album: item.track.album.name,
-    image: item.track.album.images?.[2]?.url || "",
-    url: item.track.external_urls.spotify,
-   
+    image: item.track.album.images[0]?.url || '',
   }));
 }
-export async function getSpotifyTopArtists(country: string) {
-  const token = await getAccessToken();
-  const res = await fetch(`https://api.spotify.com/v1/charts/top-artists?country=${country}`, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
-  if (!res.ok) return [];
-  const data = await res.json();
-  return (data.artists?.items || []).slice(0, 20).map((item: any, i: number) => ({
-    rank: i + 1,
-    name: item.name,
-    image: item.images?.[2]?.url || "",
-    url: item.external_urls.spotify,
-  }));
+
+export async function getRecentReleases(accessToken: string): Promise<Track[]> {
+  const response = await fetch(
+    'https://api.spotify.com/v1/browse/new-releases?limit=20',
+    {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    }
+  );
+  const data = await response.json();
+  if (!data.albums || !Array.isArray(data.albums.items)) {
+    throw new Error('Spotify API did not return albums as expected');
+  }
+  // For each album, get the first track (requires another API call per album)
+  const albums = data.albums.items;
+  const tracks: Track[] = [];
+  for (const album of albums) {
+    // Fetch album tracks
+    const albumTracksRes = await fetch(
+      `https://api.spotify.com/v1/albums/${album.id}/tracks?limit=1`,
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    );
+    const albumTracksData = await albumTracksRes.json();
+    if (albumTracksData.items && albumTracksData.items.length > 0) {
+      const t = albumTracksData.items[0];
+      tracks.push({
+        id: t.id,
+        name: t.name,
+        artist: t.artists.map((a: any) => a.name).join(', '),
+        album: album.name,
+        image: album.images[0]?.url || '',
+      });
+    }
+  }
+  return tracks;
 }
-*/
