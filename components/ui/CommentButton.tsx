@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { MessageCircle } from "lucide-react";
+import { Loader2, MessageCircle } from "lucide-react";
 import { getComments, addComment } from "@/lib/post";
 import { authClient } from "@/lib/auth-client";
 import { getUserById } from "@/lib/user";
@@ -28,7 +28,8 @@ export function CommentThread({ postId }: { postId: string }) {
   const { data: session } = authClient.useSession();
   const userId = session?.user?.id;
   const [comments, setComments] = useState<CommentWithReplies[]>([]);
-  const [newComment, setNewComment] = useState("");
+  const [mainComment, setMainComment] = useState("");
+  const [replyInputs, setReplyInputs] = useState<{ [commentId: string]: string }>({});
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [authorNames, setAuthorNames] = useState<Record<string, string>>({});
@@ -66,12 +67,24 @@ export function CommentThread({ postId }: { postId: string }) {
     setReplyingTo(commentId);
   };
 
-  const handleSubmit = async (e: React.FormEvent, parentId?: string) => {
+  const handleMainSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newComment.trim() || !userId) return;
+    if (!mainComment.trim() || !userId) return;
     setSubmitting(true);
-    await addComment({ postId, authorId: userId, content: newComment, parentId });
-    setNewComment("");
+    await addComment({ postId, authorId: userId, content: mainComment });
+    setMainComment("");
+    const updatedComments = await getComments(postId) as CommentWithReplies[];
+    setComments(updatedComments);
+    setSubmitting(false);
+  };
+
+  const handleReplySubmit = async (e: React.FormEvent, parentId: string) => {
+    e.preventDefault();
+    const replyText = replyInputs[parentId] || "";
+    if (!replyText.trim() || !userId) return;
+    setSubmitting(true);
+    await addComment({ postId, authorId: userId, content: replyText, parentId });
+    setReplyInputs(inputs => ({ ...inputs, [parentId]: "" }));
     setReplyingTo(null);
     const updatedComments = await getComments(postId) as CommentWithReplies[];
     setComments(updatedComments);
@@ -115,20 +128,20 @@ export function CommentThread({ postId }: { postId: string }) {
               </button>
               {/* Reply form only for the comment being replied to */}
               {replyingTo === comment.id && (
-                <form onSubmit={e => handleSubmit(e, comment.id)} className="flex gap-2 mb-2">
+                <form onSubmit={e => handleReplySubmit(e, comment.id)} className="flex gap-2 mb-2">
                   <input
                     type="text"
                     className="flex-1 border border-neutral-300 dark:border-neutral-600 rounded-lg px-3 py-1.5 text-sm bg-background"
                     placeholder="Reply to this comment..."
-                    value={newComment}
-                    onChange={e => setNewComment(e.target.value)}
+                    value={replyInputs[comment.id] || ""}
+                    onChange={e => setReplyInputs(inputs => ({ ...inputs, [comment.id]: e.target.value }))}
                     disabled={submitting}
                     autoFocus
                   />
                   <button
                     type="submit"
-                    className="px-3 py-1.5 text-sm bg-[#A2EE2F] text-black rounded-lg font-medium disabled:opacity-50"
-                    disabled={submitting || !newComment.trim() || !userId}
+                    className="px-3 py-1.5 text-sm bg-[#abed48] text-black rounded-lg font-medium disabled:opacity-50"
+                    disabled={submitting || !(replyInputs[comment.id] || "").trim() || !userId}
                   >
                     Reply
                   </button>
@@ -149,32 +162,29 @@ export function CommentThread({ postId }: { postId: string }) {
 
   return (
     <div className="mt-4 pb-4 border-neutral-200 dark:border-neutral-800">
-      {/* Main comment form */}
-      <form onSubmit={handleSubmit} className="flex gap-2 mb-4 pb-4 border-neutral-200 dark:border-neutral-800">
+      <form onSubmit={handleMainSubmit} className="flex gap-2 mb-4 pb-4 border-neutral-200 dark:border-neutral-800">
         <input
           type="text"
           className="flex-1 border border-neutral-300 dark:border-neutral-600 rounded-lg px-3 py-1.5 text-sm bg-background"
           placeholder="Write a comment..."
-          value={newComment}
-          onChange={e => setNewComment(e.target.value)}
+          value={mainComment}
+          onChange={e => setMainComment(e.target.value)}
           disabled={submitting}
         />
         <button 
           type="submit" 
-          className="px-4 py-2 text-sm bg-[#A2EE2F] text-black rounded-lg font-medium disabled:opacity-50" 
-          disabled={submitting || !newComment.trim() || !userId}
+          className="px-4 py-2 text-sm bg-[#abed48] hover:bg-[#99c940] text-black rounded-lg font-medium disabled:opacity-50" 
+          disabled={submitting || !mainComment.trim() || !userId}
         >
-          Comment
+          {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : "Comment"}
         </button>
       </form>
-      
-      {/* Comments thread */}
       {loading ? (
         <div className="text-sm text-muted-foreground">Loading comments...</div>
       ) : comments.length === 0 ? (
         <div className="text-sm text-muted-foreground">No comments yet. Be the first to comment!</div>
       ) : (
-        <div className="space-y-0">
+        <div>
           {renderThread(comments)}
         </div>
       )}
@@ -182,7 +192,7 @@ export function CommentThread({ postId }: { postId: string }) {
   );
 }
 
-// Main CommentButton component - only returns the button
+
 export function CommentButton({ postId, onThreadToggle }: CommentButtonProps) {
   const { data: session } = authClient.useSession();
   const [commentCount, setCommentCount] = useState(0);
@@ -207,7 +217,7 @@ export function CommentButton({ postId, onThreadToggle }: CommentButtonProps) {
       onClick={toggleThread}
       className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
     >
-      <MessageCircle className="w-4 h-4" />   <span className="text-xs">Comment</span>
+      <MessageCircle className="w-4 h-4" />  <span className="text-xs">Comment</span>
       <span className="text-xs">{commentCount}</span>
     </button>
   );

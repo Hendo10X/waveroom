@@ -4,35 +4,41 @@ import { getLikeCount, hasUserLiked, toggleLike } from "@/lib/post";
 import { authClient } from "@/lib/auth-client";
 
 export function LikeButton({ postId }: { postId: string }) {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
   const { data: session } = authClient.useSession();
   const userId = session?.user?.id;
   const [likeCount, setLikeCount] = useState(0);
   const [liked, setLiked] = useState(false);
-  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    if (!mounted) return;
     async function fetchLikeData() {
-      setLoading(true);
       setLikeCount(await getLikeCount(postId));
       if (userId) setLiked(await hasUserLiked(postId, userId));
-      setLoading(false);
     }
     fetchLikeData();
-  }, [postId, userId]);
+  }, [postId, userId, mounted]);
 
   const handleLike = async () => {
     if (!userId) return;
-    setLoading(true);
-    await toggleLike(postId, userId);
-    setLikeCount(await getLikeCount(postId));
-    setLiked(await hasUserLiked(postId, userId));
-    setLoading(false);
+    setLiked((prev) => !prev);
+    setLikeCount((prev) => prev + (liked ? -1 : 1));
+    try {
+      await toggleLike(postId, userId);
+    } catch (e) {
+      setLiked((prev) => !prev);
+      setLikeCount((prev) => prev + (liked ? 1 : -1));
+    }
   };
+
+  if (!mounted) return null;
 
   return (
     <button
       onClick={handleLike}
-      disabled={loading || !userId}
+      disabled={!userId}
       className={`flex items-center gap-2 transition-colors ${
         liked ? "text-red-500 hover:text-red-600" : "text-muted-foreground hover:text-foreground"
       }`}
