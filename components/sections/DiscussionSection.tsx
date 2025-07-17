@@ -4,6 +4,8 @@ import { createPost, getPosts } from "@/lib/post";
 import { authClient } from "@/lib/auth-client";
 import { getUserById } from "@/lib/user";
 import { Loader2, MessageCircle, Heart } from "lucide-react";
+import { LikeButton } from "@/components/ui/LikeButton";
+import { CommentButton, CommentThread } from "@/components/ui/CommentButton";
 
 function formatDateAndTime(dateString: string) {
   const date = new Date(dateString);
@@ -31,6 +33,7 @@ export function DiscussionSection({ data }: { data: { title: string; content: st
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [likedPosts, setLikedPosts] = useState<Set<string>>(new Set());
+  const [commentThreads, setCommentThreads] = useState<Set<string>>(new Set());
   const { data: session } = authClient.useSession();
 
   async function fetchPosts() {
@@ -84,6 +87,18 @@ export function DiscussionSection({ data }: { data: { title: string; content: st
     console.log('Comment on post:', postId);
   };
 
+  const handleThreadToggle = (postId: string, showThread: boolean) => {
+    setCommentThreads(prev => {
+      const newSet = new Set(prev);
+      if (showThread) {
+        newSet.add(postId);
+      } else {
+        newSet.delete(postId);
+      }
+      return newSet;
+    });
+  };
+
   return (
     <div className="flex flex-col gap-4 ml-2 md:ml-7">
       <form onSubmit={handleSubmit} className="flex flex-col gap-2">
@@ -119,25 +134,15 @@ export function DiscussionSection({ data }: { data: { title: string; content: st
               <div className="text-sm text-muted-foreground whitespace-pre-line mb-3">{post.content}</div>
               
               <div className="flex items-center gap-4 pt-2 border-neutral-100 dark:border-neutral-700">
-                <button
-                  onClick={() => handleComment(post.id)}
-                  className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  <MessageCircle className="w-4 h-4" />
-                  <span className="text-xs">Comment</span>
-                </button>
-                <button
-                  onClick={() => handleLike(post.id)}
-                  className={`flex items-center gap-2 transition-colors ${
-                    likedPosts.has(post.id) 
-                      ? 'text-red-500 hover:text-red-600' 
-                      : 'text-muted-foreground hover:text-foreground'
-                  }`}
-                >
-                  <Heart className={`w-4 ${likedPosts.has(post.id) ? 'fill-current' : ''}`} />
-                  <span className="text-xs">Like</span>
-                </button>
+                <CommentButton 
+                  postId={post.id} 
+                  onThreadToggle={(showThread) => handleThreadToggle(post.id, showThread)}
+                />
+                <LikeButton postId={post.id} />
               </div>
+              
+              {/* Comment thread */}
+              {commentThreads.has(post.id) && <CommentThread postId={post.id} />}
             </div>
           ))
         )}

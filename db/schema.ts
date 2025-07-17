@@ -1,4 +1,4 @@
-import { pgTable, text, timestamp, boolean, integer } from "drizzle-orm/pg-core";
+import { pgTable, text, timestamp, boolean, integer, PgTableWithColumns } from "drizzle-orm/pg-core";
 
 export const user = pgTable("user", {
 id: text('id').primaryKey(),
@@ -52,7 +52,25 @@ export const post = pgTable("post", {
   isPublished: boolean('is_published').$defaultFn(() => true).notNull(),
   likesCount: integer('likes_count').$defaultFn(() => 0).notNull(),
   commentsCount: integer('comments_count').$defaultFn(() => 0).notNull(),
- 
 });
 
- export const schema = { user, session, account, verification, post };
+
+export const postLike = pgTable("post_like", {
+  id: text('id').primaryKey(),
+  postId: text('post_id').notNull().references(() => post.id, { onDelete: 'cascade' }),
+  userId: text('user_id').notNull().references(() => user.id, { onDelete: 'cascade' }),
+  createdAt: timestamp('created_at').$defaultFn(() => new Date()).notNull(),
+});
+
+
+export const comment: PgTableWithColumns<any> = pgTable("comment", {
+  id: text('id').primaryKey(),
+  postId: text('post_id').notNull().references(() => post.id, { onDelete: 'cascade' }),
+  authorId: text('author_id').notNull().references(() => user.id, { onDelete: 'cascade' }),
+  content: text('content').notNull(),
+  parentId: text('parent_id').references(() => comment.id, { onDelete: 'cascade' }), // for threads
+  createdAt: timestamp('created_at').$defaultFn(() => new Date()).notNull(),
+  updatedAt: timestamp('updated_at').$defaultFn(() => new Date()).notNull(),
+});
+
+export const schema = { user, session, account, verification, post, postLike, comment };
