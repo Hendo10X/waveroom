@@ -1,4 +1,4 @@
-import { pgTable, text, timestamp, boolean, integer, PgTableWithColumns } from "drizzle-orm/pg-core";
+import { pgTable, text, timestamp, boolean, integer, PgTableWithColumns, uuid } from "drizzle-orm/pg-core";
 
 export const user = pgTable("user", {
 id: text('id').primaryKey(),
@@ -73,4 +73,15 @@ export const comment: PgTableWithColumns<any> = pgTable("comment", {
   updatedAt: timestamp('updated_at').$defaultFn(() => new Date()).notNull(),
 });
 
-export const schema = { user, session, account, verification, post, postLike, comment };
+export const playlist = pgTable('playlist', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  name: text('name').notNull(),
+  description: text('description'),
+  link: text('link').notNull(),
+  userId: text('user_id').notNull(),
+  userName: text('user_name').notNull(),
+  image: text('image'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+});
+
+export const schema = { user, session, account, verification, post, postLike, comment, playlist };
