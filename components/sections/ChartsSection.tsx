@@ -49,18 +49,22 @@ export function ChartsSection() {
   };
 
   return (
-    <div className="flex flex-col gap-4 ml-2 md:ml-7">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-bold">Recent Releases</h2>
+    <div className="flex flex-col gap-3 sm:gap-4 ml-1 sm:ml-2 md:ml-7 px-1 sm:px-0">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-2 sm:mb-4 gap-1 sm:gap-0">
+        <h2 className="text-base sm:text-lg font-bold">Recent Releases</h2>
         {lastUpdated && (
-          <div className="text-sm text-muted-foreground">
+          <div className="text-xs sm:text-sm text-muted-foreground">
             Last updated: {formatLastUpdated(lastUpdated)}
           </div>
         )}
       </div>
       {loading && <div>Loading...</div>}
       {error && <div className="text-red-500">{error}</div>}
-      {!loading && !error && <ChartTable tracks={tracks} />}
+      {!loading && !error && (
+        <div className="overflow-x-auto -mx-1 sm:mx-0">
+          <ChartTable tracks={tracks} />
+        </div>
+      )}
     </div>
   );
 }

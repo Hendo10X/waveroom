@@ -23,7 +23,7 @@ interface CommentButtonProps {
   onThreadToggle?: (showThread: boolean) => void;
 }
 
-// Separate component for the comment thread
+
 export function CommentThread({ postId }: { postId: string }) {
   const { data: session } = authClient.useSession();
   const userId = session?.user?.id;

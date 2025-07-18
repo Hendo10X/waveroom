@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { createPost, getPosts } from "@/lib/post";
 import { authClient } from "@/lib/auth-client";
 import { getUserById } from "@/lib/user";
@@ -11,7 +11,7 @@ function formatDateAndTime(dateString: string) {
   const date = new Date(dateString);
   const day = date.getDate();
   const month = date.toLocaleString("default", { month: "long" });
-  // Ordinal suffix
+
   const getOrdinal = (n: number) => {
     if (n > 3 && n < 21) return "th";
     switch (n % 10) {
@@ -44,7 +44,7 @@ export function DiscussionSection({ data }: { data: { title: string; content: st
   }
 
   async function fetchAuthorName(authorId: string) {
-    if (authorNames[authorId]) return; // Already fetched
+    if (authorNames[authorId]) return; 
     const user = await getUserById(authorId);
     setAuthorNames(prev => ({ ...prev, [authorId]: user ? user.name : "Unknown" }));
   }
@@ -57,7 +57,7 @@ export function DiscussionSection({ data }: { data: { title: string; content: st
     posts.forEach(post => {
       if (post.authorId) fetchAuthorName(post.authorId);
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    
   }, [posts]);
 
   async function handleSubmit(e: React.FormEvent) {
@@ -119,14 +119,15 @@ export function DiscussionSection({ data }: { data: { title: string; content: st
           </button>
         </div>
       </form>
+      <Suspense fallback={<div>Loading posts...</div>}>
       <div className="flex flex-col gap-4 mt-4">
         {loading ? (
-          <div>Loading posts...</div>
+          <div className="flex w-[95%] md:w-160  md:h-40 justify-center items-center h-full"><Loader2 className="w-4 h-4 animate-spin" /></div>
         ) : posts.length === 0 ? (
           <div className="text-muted-foreground text-sm">No posts yet.</div>
         ) : (
           posts.map(post => (
-            <div key={post.id} className="border-b border-neutral-200 dark:border-neutral-800  p-4 bg-background w-[95%] md:w-160">
+            <div key={post.id} className="border-b border-neutral-200 dark:border-neutral-800  p-4 bg-background w-[95%] md:w-160 hover:bg-background dark:hover:bg-background cursor-pointer">
               <div className="flex items-center gap-2 mb-1">
                 <span className="text-sm font-semibold text-foreground">@{authorNames[post.authorId] || "..."}</span>
                 <span className="text-xs text-muted-foreground">{formatDateAndTime(post.createdAt)}</span>
@@ -147,6 +148,7 @@ export function DiscussionSection({ data }: { data: { title: string; content: st
           ))
         )}
       </div>
+      </Suspense>
     </div>
   );
 }
