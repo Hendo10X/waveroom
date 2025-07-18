@@ -2,6 +2,21 @@
 import { useEffect, useState, useCallback } from "react";
 import { getAccessToken, getRecentReleases } from "@/lib/spotify";
 import { ChartTable, Track } from "./ChartTable";
+import { Loader2 } from "lucide-react";
+
+function TrackCard({ track }: { track: Track }) {
+  return (
+    <div className="flex flex-col items-center bg-background rounded-lg  p-3 gap-2 border border-neutral-200 dark:border-neutral-800">
+      <a href={track.url} target="_blank" rel="noopener noreferrer" className="flex flex-col items-center gap-2 w-full">
+        {track.image && <img src={track.image} alt="cover" className="w-16 h-16 rounded mb-1" />}
+        <span className="font-semibold text-sm text-center truncate w-full">{track.name}</span>
+        <span className="font-dm-mono text-xs text-muted-foreground truncate w-full text-center">{track.artist}</span>
+        <span className="font-dm-mono text-xs text-muted-foreground truncate w-full text-center">{track.album}</span>
+      </a>
+      <span className="text-xs text-muted-foreground mt-1">#{track.rank}</span>
+    </div>
+  );
+}
 
 export function ChartsSection() {
   const [tracks, setTracks] = useState<Track[]>([]);
@@ -15,7 +30,7 @@ export function ChartsSection() {
     try {
       const accessToken = await getAccessToken();
       const recentTracks = await getRecentReleases(accessToken);
-      // Add rank and url for ChartTable
+      
       const transformedTracks: Track[] = recentTracks.map((track, index) => ({
         ...track,
         rank: index + 1,
@@ -58,12 +73,19 @@ export function ChartsSection() {
           </div>
         )}
       </div>
-      {loading && <div>Loading...</div>}
+      {loading && <div className="flex justify-center items-center h-full"><Loader2 className="w-4 h-4 animate-spin" /></div>}
       {error && <div className="text-red-500">{error}</div>}
       {!loading && !error && (
-        <div className="overflow-x-auto -mx-1 sm:mx-0">
-          <ChartTable tracks={tracks} />
-        </div>
+        <>
+          <div className="grid grid-cols-2 gap-3 sm:hidden w-full">
+            {tracks.map(track => (
+              <TrackCard key={track.rank} track={track} />
+            ))}
+          </div>
+          <div className="overflow-x-auto -mx-1 sm:mx-0 hidden sm:block">
+            <ChartTable tracks={tracks} />
+          </div>
+        </>
       )}
     </div>
   );
