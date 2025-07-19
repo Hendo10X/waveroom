@@ -3,6 +3,21 @@ import { useEffect, useState, useCallback } from "react";
 import { getAccessToken, getRecentReleases } from "@/lib/spotify";
 import { ChartTable, Track } from "./ChartTable";
 import { Loader2 } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
+
+function TrackCardSkeleton() {
+  return (
+    <div className="flex flex-col items-center bg-background rounded-lg p-3 gap-2 border border-neutral-200 dark:border-neutral-800">
+      <div className="flex flex-col items-center gap-2 w-full">
+        <Skeleton className="w-16 h-16 rounded mb-1" />
+        <Skeleton className="h-4 w-full max-w-[120px]" />
+        <Skeleton className="h-3 w-full max-w-[100px]" />
+        <Skeleton className="h-3 w-full max-w-[80px]" />
+      </div>
+      <Skeleton className="h-3 w-6 mt-1" />
+    </div>
+  );
+}
 
 function TrackCard({ track }: { track: Track }) {
   return (
@@ -14,6 +29,38 @@ function TrackCard({ track }: { track: Track }) {
         <span className="font-dm-mono text-xs text-muted-foreground truncate w-full text-center">{track.album}</span>
       </a>
       <span className="text-xs text-muted-foreground mt-1">#{track.rank}</span>
+    </div>
+  );
+}
+
+function ChartTableSkeleton() {
+  return (
+    <div className="overflow-x-auto -mx-1 sm:mx-0">
+      <div className="min-w-full border rounded-lg">
+        {/* Table Header */}
+        <div className="bg-muted/50 border-b">
+          <div className="grid grid-cols-4 gap-4 px-4 py-3">
+            <Skeleton className="h-4 w-4" />
+            <Skeleton className="h-4 w-16" />
+            <Skeleton className="h-4 w-16" />
+            <Skeleton className="h-4 w-16" />
+          </div>
+        </div>
+        {/* Table Body */}
+        <div className="divide-y">
+          {[...Array(10)].map((_, i) => (
+            <div key={i} className="grid grid-cols-4 gap-4 px-4 py-3">
+              <Skeleton className="h-4 w-4" />
+              <div className="flex items-center gap-2">
+                <Skeleton className="w-8 h-8 rounded" />
+                <Skeleton className="h-4 w-32" />
+              </div>
+              <Skeleton className="h-4 w-24" />
+              <Skeleton className="h-4 w-24" />
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
@@ -73,9 +120,21 @@ export function ChartsSection() {
           </div>
         )}
       </div>
-      {loading && <div className="flex justify-center items-center h-full"><Loader2 className="w-4 h-4 animate-spin" /></div>}
       {error && <div className="text-red-500">{error}</div>}
-      {!loading && !error && (
+      {loading ? (
+        <>
+          {/* Mobile skeleton */}
+          <div className="grid grid-cols-2 gap-3 sm:hidden w-full">
+            {[...Array(6)].map((_, i) => (
+              <TrackCardSkeleton key={i} />
+            ))}
+          </div>
+          {/* Desktop skeleton */}
+          <div className="hidden sm:block">
+            <ChartTableSkeleton />
+          </div>
+        </>
+      ) : (
         <>
           <div className="grid grid-cols-2 gap-3 sm:hidden w-full">
             {tracks.map(track => (

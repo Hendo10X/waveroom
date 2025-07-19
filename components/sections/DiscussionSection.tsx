@@ -4,7 +4,7 @@ import { createPost, getPosts } from "@/lib/post";
 import { authClient } from "@/lib/auth-client";
 import { getUserById } from "@/lib/user";
 import { Loader2, MessageCircle, Heart } from "lucide-react";
-import { LikeButton } from "@/components/ui/LikeButton";
+import { HeartButton } from "@/components/shsfui/button/heart-button";
 import { CommentButton, CommentThread } from "@/components/ui/CommentButton";
 
 function formatDateAndTime(dateString: string) {
@@ -139,7 +139,15 @@ export function DiscussionSection({ data }: { data: { title: string; content: st
                   postId={post.id} 
                   onThreadToggle={(showThread) => handleThreadToggle(post.id, showThread)}
                 />
-                <LikeButton postId={post.id} />
+                <HeartButton 
+                  postId={post.id}
+                  initialCount={0}
+                  maxClicks={1}
+                  label=""
+                  onCountChange={(count) => {
+                    // Handle count change if needed
+                  }}
+                />
               </div>
               
               {/* Comment thread */}
