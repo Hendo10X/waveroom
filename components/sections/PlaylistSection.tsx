@@ -39,7 +39,7 @@ function PlaylistCard({ playlist, onDelete, isOwner }: { playlist: Playlist; onD
   return (
     <div className="flex flex-col items-center w-full max-w-[200px] mx-auto">
       <div
-        className="w-full aspect-square bg-background rounded-lg overflow-hidden border border-neutral-200 dark:border-neutral-800 shadow-sm relative group"
+        className="w-full aspect-square bg-background rounded-lg overflow-hidden border border-neutral-200 dark:border-neutral-800  relative group"
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
       >
@@ -87,14 +87,14 @@ function PlaylistCard({ playlist, onDelete, isOwner }: { playlist: Playlist; onD
         </div>
       </div>
       <div className="text-center w-full text-md mt-2">
-        <h2 className="font-semibold text-base mb-1 truncate w-full">{playlist.name}</h2>
-        {playlist.description && <p className="text-xs text-muted-foreground mb-1 truncate w-full">{playlist.description}</p>}
-        <p className="text-xs text-muted-foreground mb-1">By @{playlist.userName || "Anonymous"}</p>
+        <h2 className="font-semibold text-base mb-1 w-full font-dm-mono uppercase truncate">{playlist.name}</h2>
+        {playlist.description && <p className="text-xs text-muted-foreground mb-1 break-words w-full font-dm-mono uppercase">{playlist.description}</p>}
+        <p className="text-xs text-foreground mb-1 font-dm-mono uppercase">@{playlist.userName || "Anonymous"}</p>
         <a
           href={playlist.link}
           target="_blank"
           rel="noopener noreferrer"
-          className="text-xs text-[#1DB954] hover:underline break-all"
+          className="text-xs text-[#1DB954] hover:underline break-all font-dm-mono uppercase"
         >
           View Playlist
         </a>

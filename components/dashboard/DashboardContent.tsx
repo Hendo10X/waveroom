@@ -17,6 +17,7 @@ import { PlaylistSection } from "@/components/sections/PlaylistSection";
 import { SavedSection } from "@/components/sections/SavedSection";
 import { Logout } from "@/components/logout";
 import { ThemeToggle } from "@/components/theme-toggle";
+import Image from "next/image";
 
 type SectionKey = "discussion" | "charts" | "playlists" | "saved";
 
@@ -122,7 +123,7 @@ const Sidebar = ({
   userName: string;
 }) => (
   <aside className={`${STYLES.sidebar.base} ${isMobile ? STYLES.sidebar.hidden : ''}`}>
-    <h2 className="text-sm font-bold mb-8 text-foreground ml-3">Waveroom</h2>
+   <Image src="/Waveroom.svg" alt="Waveroom" width={80} height={80} className="mb-8 ml-4" />
     <nav className="flex flex-col gap-2 flex-1">
       {sections.map((section) => (
         <SidebarButton
