@@ -1,5 +1,5 @@
-welcome to waveroom
+Welcome to Waveroom
 
-a very simple social forum for music lovers. 
+A very simple social forum for music lovers. 
 share, play and discuss music here.
 
