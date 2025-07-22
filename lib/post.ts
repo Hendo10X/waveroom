@@ -39,10 +39,7 @@ export async function getPostsByUser(userId: string) {
 
 export async function getPostById(id: string) {
   try {
-    const [postData] = await db
-      .select()
-      .from(post)
-      .where(eq(post.id, id));
+    const [postData] = await db.select().from(post).where(eq(post.id, id));
     return postData;
   } catch (error) {
     console.error(error, "Error fetching post");
@@ -50,7 +47,12 @@ export async function getPostById(id: string) {
   }
 }
 
-export async function createPost(postData: Omit<NewPost, "id" | "createdAt" | "updatedAt" | "likesCount" | "commentsCount">) {
+export async function createPost(
+  postData: Omit<
+    NewPost,
+    "id" | "createdAt" | "updatedAt" | "likesCount" | "commentsCount"
+  >
+) {
   try {
     const [newPost] = await db
       .insert(post)
@@ -59,7 +61,7 @@ export async function createPost(postData: Omit<NewPost, "id" | "createdAt" | "u
         id: crypto.randomUUID(),
       })
       .returning();
-    
+
     revalidatePath("/dashboard");
     return newPost;
   } catch (error) {
@@ -68,7 +70,15 @@ export async function createPost(postData: Omit<NewPost, "id" | "createdAt" | "u
   }
 }
 
-export async function updatePost(id: string, postData: Partial<Omit<Post, "id" | "createdAt" | "updatedAt" | "likesCount" | "commentsCount">>) {
+export async function updatePost(
+  id: string,
+  postData: Partial<
+    Omit<
+      Post,
+      "id" | "createdAt" | "updatedAt" | "likesCount" | "commentsCount"
+    >
+  >
+) {
   try {
     const [updatedPost] = await db
       .update(post)
@@ -78,7 +88,7 @@ export async function updatePost(id: string, postData: Partial<Omit<Post, "id" |
       })
       .where(eq(post.id, id))
       .returning();
-    
+
     revalidatePath("/dashboard");
     return updatedPost;
   } catch (error) {
@@ -100,14 +110,10 @@ export async function deletePost(id: string) {
 
 export async function incrementLikes(id: string) {
   try {
-   
-    const [currentPost] = await db
-      .select()
-      .from(post)
-      .where(eq(post.id, id));
-    
+    const [currentPost] = await db.select().from(post).where(eq(post.id, id));
+
     if (!currentPost) return null;
-    
+
     const [updatedPost] = await db
       .update(post)
       .set({
@@ -116,7 +122,7 @@ export async function incrementLikes(id: string) {
       })
       .where(eq(post.id, id))
       .returning();
-    
+
     revalidatePath("/dashboard");
     return updatedPost;
   } catch (error) {
@@ -127,14 +133,10 @@ export async function incrementLikes(id: string) {
 
 export async function decrementLikes(id: string) {
   try {
- 
-    const [currentPost] = await db
-      .select()
-      .from(post)
-      .where(eq(post.id, id));
-    
+    const [currentPost] = await db.select().from(post).where(eq(post.id, id));
+
     if (!currentPost) return null;
-    
+
     const [updatedPost] = await db
       .update(post)
       .set({
@@ -143,7 +145,7 @@ export async function decrementLikes(id: string) {
       })
       .where(eq(post.id, id))
       .returning();
-    
+
     revalidatePath("/dashboard");
     return updatedPost;
   } catch (error) {
@@ -154,13 +156,10 @@ export async function decrementLikes(id: string) {
 
 export async function togglePostVisibility(id: string) {
   try {
-    const [currentPost] = await db
-      .select()
-      .from(post)
-      .where(eq(post.id, id));
-    
+    const [currentPost] = await db.select().from(post).where(eq(post.id, id));
+
     if (!currentPost) return null;
-    
+
     const [updatedPost] = await db
       .update(post)
       .set({
@@ -169,15 +168,14 @@ export async function togglePostVisibility(id: string) {
       })
       .where(eq(post.id, id))
       .returning();
-    
+
     revalidatePath("/dashboard");
     return updatedPost;
   } catch (error) {
     console.error(error, "Error toggling post visibility");
     return null;
   }
-} 
-
+}
 
 export async function getLikeCount(postId: string) {
   try {
@@ -212,10 +210,10 @@ export async function toggleLike(postId: string, userId: string) {
       .from(postLike)
       .where(and(eq(postLike.postId, postId), eq(postLike.userId, userId)));
     if (existing.length > 0) {
-     
-      await db.delete(postLike).where(and(eq(postLike.postId, postId), eq(postLike.userId, userId)));
+      await db
+        .delete(postLike)
+        .where(and(eq(postLike.postId, postId), eq(postLike.userId, userId)));
     } else {
-     
       await db.insert(postLike).values({
         id: crypto.randomUUID(),
         postId,
@@ -231,7 +229,6 @@ export async function toggleLike(postId: string, userId: string) {
   }
 }
 
-
 export async function getComments(postId: string) {
   try {
     const comments = await db
@@ -239,9 +236,9 @@ export async function getComments(postId: string) {
       .from(commentTable)
       .where(eq(commentTable.postId, postId))
       .orderBy(commentTable.createdAt);
-   
+
     const map: Record<string, any[]> = {};
-    comments.forEach(c => {
+    comments.forEach((c) => {
       if (!c.parentId) {
         map[c.id] = [];
       } else {
@@ -249,18 +246,30 @@ export async function getComments(postId: string) {
         map[c.parentId].push(c);
       }
     });
-   
-    return comments.filter(c => !c.parentId).map(c => ({
-      ...c,
-      replies: map[c.id] || [],
-    }));
+
+    return comments
+      .filter((c) => !c.parentId)
+      .map((c) => ({
+        ...c,
+        replies: map[c.id] || [],
+      }));
   } catch (error) {
     console.error(error, "Error getting comments");
     return [];
   }
 }
 
-export async function addComment({ postId, authorId, content, parentId }: { postId: string, authorId: string, content: string, parentId?: string }) {
+export async function addComment({
+  postId,
+  authorId,
+  content,
+  parentId,
+}: {
+  postId: string;
+  authorId: string;
+  content: string;
+  parentId?: string;
+}) {
   try {
     const [newComment]: any = await db
       .insert(commentTable)
@@ -280,4 +289,4 @@ export async function addComment({ postId, authorId, content, parentId }: { post
     console.error(error, "Error adding comment");
     return null;
   }
-} 
+}

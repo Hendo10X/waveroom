@@ -33,7 +33,15 @@ interface Playlist {
   createdAt: string;
 }
 
-function PlaylistCard({ playlist, onDelete, isOwner }: { playlist: Playlist; onDelete: (id: string) => void; isOwner: boolean }) {
+function PlaylistCard({
+  playlist,
+  onDelete,
+  isOwner,
+}: {
+  playlist: Playlist;
+  onDelete: (id: string) => void;
+  isOwner: boolean;
+}) {
   const [hovered, setHovered] = useState(false);
   const [alertOpen, setAlertOpen] = useState(false);
   return (
@@ -41,19 +49,24 @@ function PlaylistCard({ playlist, onDelete, isOwner }: { playlist: Playlist; onD
       <div
         className="w-full aspect-square bg-background rounded-lg overflow-hidden border border-neutral-200 dark:border-neutral-800  relative group"
         onMouseEnter={() => setHovered(true)}
-        onMouseLeave={() => setHovered(false)}
-      >
+        onMouseLeave={() => setHovered(false)}>
         {playlist.image && (
-          <img src={playlist.image} alt="cover" className="w-full h-full object-cover" />
+          <img
+            src={playlist.image}
+            alt="cover"
+            className="w-full h-full object-cover"
+          />
         )}
-        <div className={`absolute inset-0 flex items-center justify-center gap-3 bg-black/40 transition-opacity ${hovered ? 'opacity-100' : 'opacity-0'} group-hover:opacity-100`}>
+        <div
+          className={`absolute inset-0 flex items-center justify-center gap-3 bg-black/40 transition-opacity ${
+            hovered ? "opacity-100" : "opacity-0"
+          } group-hover:opacity-100`}>
           {isOwner && (
             <AlertDialog open={alertOpen} onOpenChange={setAlertOpen}>
               <AlertDialogTrigger asChild>
                 <button
                   className="bg-red-500 hover:bg-red-600 text-white rounded-full p-2"
-                  title="Delete"
-                >
+                  title="Delete">
                   <Trash2 className="w-5 h-5" />
                 </button>
               </AlertDialogTrigger>
@@ -61,41 +74,58 @@ function PlaylistCard({ playlist, onDelete, isOwner }: { playlist: Playlist; onD
                 <AlertDialogHeader>
                   <AlertDialogTitle>Delete Playlist</AlertDialogTitle>
                   <AlertDialogDescription>
-                    Are you sure you want to delete this playlist? This action cannot be undone.
+                    Are you sure you want to delete this playlist? This action
+                    cannot be undone.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                   <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction onClick={() => onDelete(playlist.id)}>Delete</AlertDialogAction>
+                  <AlertDialogAction onClick={() => onDelete(playlist.id)}>
+                    Delete
+                  </AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>
           )}
           <button
             className="bg-white/80 hover:bg-white text-red-500 rounded-full p-2"
-            title="Like"
-          >
+            title="Like">
             <Heart className="w-5 h-5" />
           </button>
           <button
             className="bg-white/80 hover:bg-white text-blue-500 rounded-full p-2"
             title="Share"
-            onClick={() => navigator.share ? navigator.share({ title: playlist.name, url: window.location.origin + playlist.link }) : navigator.clipboard.writeText(window.location.origin + playlist.link)}
-          >
+            onClick={() =>
+              navigator.share
+                ? navigator.share({
+                    title: playlist.name,
+                    url: window.location.origin + playlist.link,
+                  })
+                : navigator.clipboard.writeText(
+                    window.location.origin + playlist.link
+                  )
+            }>
             <Share2 className="w-5 h-5" />
           </button>
         </div>
       </div>
       <div className="text-center w-full text-md mt-2">
-        <h2 className="font-semibold text-base mb-1 w-full font-dm-mono uppercase truncate">{playlist.name}</h2>
-        {playlist.description && <p className="text-xs text-muted-foreground mb-1 break-words w-full font-dm-mono uppercase">{playlist.description}</p>}
-        <p className="text-xs text-foreground mb-1 font-dm-mono uppercase">@{playlist.userName || "Anonymous"}</p>
+        <h2 className="font-semibold text-base mb-1 w-full font-dm-mono uppercase truncate">
+          {playlist.name}
+        </h2>
+        {playlist.description && (
+          <p className="text-xs text-muted-foreground mb-1 break-words w-full font-dm-mono uppercase">
+            {playlist.description}
+          </p>
+        )}
+        <p className="text-xs text-foreground mb-1 font-dm-mono uppercase">
+          @{playlist.userName || "Anonymous"}
+        </p>
         <a
           href={playlist.link}
           target="_blank"
           rel="noopener noreferrer"
-          className="text-xs text-[#1DB954] hover:underline break-all font-dm-mono uppercase"
-        >
+          className="text-xs text-[#1DB954] hover:underline break-all font-dm-mono uppercase">
           View Playlist
         </a>
       </div>
@@ -103,7 +133,11 @@ function PlaylistCard({ playlist, onDelete, isOwner }: { playlist: Playlist; onD
   );
 }
 
-export function PlaylistSection({ data }: { data: { title: string; content: string } }) {
+export function PlaylistSection({
+  data,
+}: {
+  data: { title: string; content: string };
+}) {
   const { data: session } = authClient.useSession();
   const [playlists, setPlaylists] = useState<Playlist[]>([]);
   const [name, setName] = useState("");
@@ -142,7 +176,13 @@ export function PlaylistSection({ data }: { data: { title: string; content: stri
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name.trim() || !link.trim() || !session?.user?.id || !session.user.name) return;
+    if (
+      !name.trim() ||
+      !link.trim() ||
+      !session?.user?.id ||
+      !session.user.name
+    )
+      return;
     setSubmitting(true);
     const formData = new FormData();
     formData.append("name", name);
@@ -159,7 +199,7 @@ export function PlaylistSection({ data }: { data: { title: string; content: stri
     });
     if (res.ok) {
       const newPlaylist = await res.json();
-      setPlaylists(prev => [newPlaylist, ...prev]);
+      setPlaylists((prev) => [newPlaylist, ...prev]);
       setName("");
       setDescription("");
       setLink("");
@@ -172,12 +212,17 @@ export function PlaylistSection({ data }: { data: { title: string; content: stri
 
   const handleDelete = async (id: string) => {
     await fetch(`/api/playlist?id=${id}`, { method: "DELETE" });
-    setPlaylists(prev => prev.filter(p => p.id !== id));
+    setPlaylists((prev) => prev.filter((p) => p.id !== id));
   };
 
   return (
     <div className="flex flex-col gap-4 items-center justify-center">
-      <h1 className="text-lg font-bold mb-4 text-muted-foreground">Playlist <span className="text-lg text-muted-foreground">({playlists.length})</span></h1>
+      <h1 className="text-lg font-bold mb-4 text-muted-foreground">
+        Playlist{" "}
+        <span className="text-lg text-muted-foreground">
+          ({playlists.length})
+        </span>
+      </h1>
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-8 w-full max-w-4xl mx-auto">
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
@@ -189,27 +234,30 @@ export function PlaylistSection({ data }: { data: { title: string; content: stri
             <DialogHeader>
               <DialogTitle>Add Playlist</DialogTitle>
             </DialogHeader>
-            <form onSubmit={handleSubmit} className="flex flex-col gap-2 w-full" encType="multipart/form-data">
+            <form
+              onSubmit={handleSubmit}
+              className="flex flex-col gap-2 w-full"
+              encType="multipart/form-data">
               <input
                 type="text"
                 className="border border-neutral-300 dark:border-neutral-700 rounded px-3 py-2 text-sm bg-background focus:outline-none focus:ring-2 focus:ring-neutral-300 dark:focus:ring-neutral-700"
                 placeholder="Playlist name"
                 value={name}
-                onChange={e => setName(e.target.value)}
+                onChange={(e) => setName(e.target.value)}
                 required
               />
               <textarea
                 className="border border-neutral-300 dark:border-neutral-700 rounded px-3 py-2 text-sm bg-background focus:outline-none focus:ring-2 focus:ring-neutral-300 dark:focus:ring-neutral-700"
                 placeholder="Description (optional)"
                 value={description}
-                onChange={e => setDescription(e.target.value)}
+                onChange={(e) => setDescription(e.target.value)}
               />
               <input
                 type="url"
                 className="border border-neutral-300 dark:border-neutral-700 rounded px-3 py-2 text-sm bg-background focus:outline-none focus:ring-2 focus:ring-neutral-300 dark:focus:ring-neutral-700"
                 placeholder="Playlist link (Spotify, YouTube, etc.)"
                 value={link}
-                onChange={e => setLink(e.target.value)}
+                onChange={(e) => setLink(e.target.value)}
                 required
               />
               <input
@@ -219,24 +267,40 @@ export function PlaylistSection({ data }: { data: { title: string; content: stri
                 onChange={handleImageChange}
               />
               {imagePreview && (
-                <img src={imagePreview} alt="Preview" className="w-24 h-24 object-cover rounded mb-2 mx-auto" />
+                <img
+                  src={imagePreview}
+                  alt="Preview"
+                  className="w-24 h-24 object-cover rounded mb-2 mx-auto"
+                />
               )}
               <button
                 type="submit"
                 className="bg-[#A2EE2F] text-black rounded px-4 py-2 font-medium text-sm disabled:opacity-50 mt-2"
-                disabled={submitting || !name.trim() || !link.trim() || !session?.user?.id}
-              >
-                {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : "Add Playlist"}
+                disabled={
+                  submitting ||
+                  !name.trim() ||
+                  !link.trim() ||
+                  !session?.user?.id
+                }>
+                {submitting ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  "Add Playlist"
+                )}
               </button>
             </form>
           </DialogContent>
         </Dialog>
         {loading ? (
-          <div className="col-span-full text-center text-muted-foreground">Loading playlists...</div>
+          <div className="col-span-full text-center text-muted-foreground">
+            Loading playlists...
+          </div>
         ) : playlists.length === 0 ? (
-          <div className="col-span-full text-center text-muted-foreground">No playlists yet. Be the first to add one!</div>
+          <div className="col-span-full text-center text-muted-foreground">
+            No playlists yet. Be the first to add one!
+          </div>
         ) : (
-          playlists.map(playlist => (
+          playlists.map((playlist) => (
             <PlaylistCard
               key={playlist.id}
               playlist={playlist}
@@ -248,4 +312,4 @@ export function PlaylistSection({ data }: { data: { title: string; content: stri
       </div>
     </div>
   );
-} 
+}

@@ -5,9 +5,9 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { Instrument_Serif } from "next/font/google";
 import { Archivo_Narrow } from "next/font/google";
-import { DM_Mono } from "next/font/google"; 
-import { Toaster } from "@/components/ui/sonner"
-import { ThemeProvider } from "@/components/theme-provider"
+import { DM_Mono } from "next/font/google";
+import { Toaster } from "@/components/ui/sonner";
+import { ThemeProvider } from "@/components/theme-provider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -49,7 +49,8 @@ const dmMono = DM_Mono({
 
 export const metadata: Metadata = {
   title: "Waveroom",
-  description: "Waveroo is a platform for creating and sharing playlists of songs.",
+  description:
+    "Waveroo is a platform for creating and sharing playlists of songs.",
 };
 
 export default function RootLayout({
@@ -60,15 +61,13 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${martianMono.variable} ${inter.variable} ${instrumentSerif.variable} ${archivoNarrow.variable} ${dmMono.variable} antialiased`}
-      >
+        className={`${geistSans.variable} ${geistMono.variable} ${martianMono.variable} ${inter.variable} ${instrumentSerif.variable} ${archivoNarrow.variable} ${dmMono.variable} antialiased`}>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
           enableSystem
-          disableTransitionOnChange
-        >
-          <Toaster className="bg-background text-foreground"/>
+          disableTransitionOnChange>
+          <Toaster className="bg-background text-foreground" />
           {children}
         </ThemeProvider>
       </body>

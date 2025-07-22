@@ -16,49 +16,56 @@ function formatDateAndTime(dateString: string) {
   const getOrdinal = (n: number) => {
     if (n > 3 && n < 21) return "th";
     switch (n % 10) {
-      case 1: return "st";
-      case 2: return "nd";
-      case 3: return "rd";
-      default: return "th";
+      case 1:
+        return "st";
+      case 2:
+        return "nd";
+      case 3:
+        return "rd";
+      default:
+        return "th";
     }
   };
   const formattedDate = `${day}${getOrdinal(day)} ${month}`;
-  const formattedTime = date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  const formattedTime = date.toLocaleTimeString([], {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
   return `${formattedDate} • ${formattedTime}`;
 }
 
 const postVariants: Variants = {
   hidden: { opacity: 0, y: 20, scale: 0.95 },
-  visible: { 
-    opacity: 1, 
-    y: 0, 
+  visible: {
+    opacity: 1,
+    y: 0,
     scale: 1,
     transition: {
       duration: 0.4,
-      ease: "easeOut" as const
-    }
+      ease: "easeOut" as const,
+    },
   },
-  exit: { 
-    opacity: 0, 
-    y: -20, 
+  exit: {
+    opacity: 0,
+    y: -20,
     scale: 0.95,
     transition: {
       duration: 0.3,
-      ease: "easeIn" as const
-    }
-  }
+      ease: "easeIn" as const,
+    },
+  },
 };
 
 const loadMoreVariants: Variants = {
   hidden: { opacity: 0, y: 10 },
-  visible: { 
-    opacity: 1, 
+  visible: {
+    opacity: 1,
     y: 0,
     transition: {
       duration: 0.3,
-      ease: "easeOut" as const
-    }
-  }
+      ease: "easeOut" as const,
+    },
+  },
 };
 
 const staggerContainer: Variants = {
@@ -67,12 +74,16 @@ const staggerContainer: Variants = {
     opacity: 1,
     transition: {
       staggerChildren: 0.1,
-      delayChildren: 0.1
-    }
-  }
+      delayChildren: 0.1,
+    },
+  },
 };
 
-export function DiscussionSection({ data }: { data: { title: string; content: string } }) {
+export function DiscussionSection({
+  data,
+}: {
+  data: { title: string; content: string };
+}) {
   const [content, setContent] = useState("");
   const [posts, setPosts] = useState<any[]>([]);
   const [authorNames, setAuthorNames] = useState<Record<string, string>>({});
@@ -92,9 +103,12 @@ export function DiscussionSection({ data }: { data: { title: string; content: st
   }
 
   async function fetchAuthorName(authorId: string) {
-    if (authorNames[authorId]) return; 
+    if (authorNames[authorId]) return;
     const user = await getUserById(authorId);
-    setAuthorNames(prev => ({ ...prev, [authorId]: user ? user.name : "Unknown" }));
+    setAuthorNames((prev) => ({
+      ...prev,
+      [authorId]: user ? user.name : "Unknown",
+    }));
   }
 
   useEffect(() => {
@@ -102,10 +116,9 @@ export function DiscussionSection({ data }: { data: { title: string; content: st
   }, []);
 
   useEffect(() => {
-    posts.forEach(post => {
+    posts.forEach((post) => {
       if (post.authorId) fetchAuthorName(post.authorId);
     });
-    
   }, [posts]);
 
   async function handleSubmit(e: React.FormEvent) {
@@ -119,7 +132,7 @@ export function DiscussionSection({ data }: { data: { title: string; content: st
   }
 
   const handleLike = (postId: string) => {
-    setLikedPosts(prev => {
+    setLikedPosts((prev) => {
       const newSet = new Set(prev);
       if (newSet.has(postId)) {
         newSet.delete(postId);
@@ -132,11 +145,11 @@ export function DiscussionSection({ data }: { data: { title: string; content: st
 
   const handleComment = (postId: string) => {
     // TODO: Implement comment functionality
-    console.log('Comment on post:', postId);
+    console.log("Comment on post:", postId);
   };
 
   const handleThreadToggle = (postId: string, showThread: boolean) => {
-    setCommentThreads(prev => {
+    setCommentThreads((prev) => {
       const newSet = new Set(prev);
       if (showThread) {
         newSet.add(postId);
@@ -150,8 +163,8 @@ export function DiscussionSection({ data }: { data: { title: string; content: st
   const handleLoadMore = async () => {
     setIsLoadingMore(true);
     // Simulate a small delay for smooth animation
-    await new Promise(resolve => setTimeout(resolve, 300));
-    setVisiblePosts(prev => prev + 7);
+    await new Promise((resolve) => setTimeout(resolve, 300));
+    setVisiblePosts((prev) => prev + 7);
     setIsLoadingMore(false);
   };
 
@@ -159,156 +172,154 @@ export function DiscussionSection({ data }: { data: { title: string; content: st
   const hasMorePosts = visiblePosts < posts.length;
 
   return (
-    <motion.div 
+    <motion.div
       className="flex flex-col gap-4 ml-2 md:ml-7"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, ease: "easeOut" }}
-    >
-      <motion.form 
-        onSubmit={handleSubmit} 
+      transition={{ duration: 0.5, ease: "easeOut" }}>
+      <motion.form
+        onSubmit={handleSubmit}
         className="flex flex-col gap-2"
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, delay: 0.1 }}
-      >
+        transition={{ duration: 0.4, delay: 0.1 }}>
         <textarea
           className="w-[95%] md:w-160 h-32 md:h-40 bg-background text-foreground border border-neutral-200 dark:border-neutral-800 rounded-lg p-3 md:p-4 placeholder:text-[#828282] placeholder:text-sm resize-none text-sm md:text-base focus:outline-none focus:ring-0 mb-[-9px]"
           placeholder="Share your thoughts..."
           value={content}
-          onChange={e => setContent(e.target.value)}
+          onChange={(e) => setContent(e.target.value)}
           disabled={submitting}
         />
         <div className="flex justify-end w-[95%] md:w-160">
           <motion.button
             type="submit"
-            className="items-center gap-2 rounded-lg bg-[#A2EE2F] px-5 md:px-3 py-1 md:py-2 font-medium text-black opacity-60 text-sm md:text-base mt-2"
+            className="items-center gap-2 rounded-lg bg-[#A2EE2F] px-5 md:px-3 py-1 md:py-2 font-medium text-black opacity-90 text-sm md:text-base mt-2"
             disabled={submitting || !content.trim() || !session?.user?.id}
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
-            transition={{ duration: 0.2 }}
-          >
+            transition={{ duration: 0.2 }}>
             {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : "Post"}
           </motion.button>
         </div>
       </motion.form>
       <Suspense fallback={<div>Loading posts...</div>}>
-      <div className="flex flex-col gap-4 mt-4">
-        {loading ? (
-          <motion.div 
-            className="flex w-[95%] md:w-160 md:h-40 justify-center items-center h-full"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.3 }}
-          >
-            <Loader2 className="w-4 h-4 animate-spin" />
-          </motion.div>
-        ) : posts.length === 0 ? (
-          <motion.div 
-            className="text-muted-foreground text-sm"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4 }}
-          >
-            No posts yet.
-          </motion.div>
-        ) : (
-          <>
+        <div className="flex flex-col gap-4 mt-4">
+          {loading ? (
             <motion.div
-              variants={staggerContainer}
-              initial="hidden"
-              animate="visible"
-              className="flex flex-col gap-4"
-            >
-              <AnimatePresence mode="popLayout">
-                {displayedPosts.map((post, index) => (
+              className="flex w-[95%] md:w-160 md:h-40 justify-center items-center h-full"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.3 }}>
+              <Loader2 className="w-4 h-4 animate-spin" />
+            </motion.div>
+          ) : posts.length === 0 ? (
+            <motion.div
+              className="text-muted-foreground text-sm"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4 }}>
+              No posts yet.
+            </motion.div>
+          ) : (
+            <>
+              <motion.div
+                variants={staggerContainer}
+                initial="hidden"
+                animate="visible"
+                className="flex flex-col gap-4">
+                <AnimatePresence mode="popLayout">
+                  {displayedPosts.map((post, index) => (
+                    <motion.div
+                      key={post.id}
+                      variants={postVariants}
+                      initial="hidden"
+                      animate="visible"
+                      exit="exit"
+                      layout
+                      className="border-b border-neutral-200 dark:border-neutral-800 p-4 bg-background w-[95%] md:w-160 hover:bg-background dark:hover:bg-background cursor-pointer"
+                      whileHover={{
+                        y: -2,
+                        transition: { duration: 0.2 },
+                      }}>
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-sm font-semibold text-foreground">
+                          @{authorNames[post.authorId] || "..."}
+                        </span>
+                        <span className="text-xs text-muted-foreground">
+                          {formatDateAndTime(post.createdAt)}
+                        </span>
+                      </div>
+                      <div className="text-sm text-muted-foreground whitespace-pre-line mb-3">
+                        {post.content}
+                      </div>
+
+                      <div className="flex items-center gap-4 pt-2 border-neutral-100 dark:border-neutral-700">
+                        <CommentButton
+                          postId={post.id}
+                          onThreadToggle={(showThread) =>
+                            handleThreadToggle(post.id, showThread)
+                          }
+                        />
+                        <HeartButton
+                          postId={post.id}
+                          initialCount={0}
+                          maxClicks={1}
+                          label=""
+                          onCountChange={(count) => {
+                            // Handle count change if needed
+                          }}
+                        />
+                      </div>
+
+                      {/* Comment thread */}
+                      <AnimatePresence>
+                        {commentThreads.has(post.id) && (
+                          <motion.div
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: "auto" }}
+                            exit={{ opacity: 0, height: 0 }}
+                            transition={{ duration: 0.3, ease: "easeInOut" }}>
+                            <CommentThread postId={post.id} />
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
+              </motion.div>
+
+              {/* Load More Button */}
+              <AnimatePresence>
+                {hasMorePosts && (
                   <motion.div
-                    key={post.id}
-                    variants={postVariants}
+                    className="flex justify-center w-[95%] md:w-160 pt-4"
+                    variants={loadMoreVariants}
                     initial="hidden"
                     animate="visible"
-                    exit="exit"
-                    layout
-                    className="border-b border-neutral-200 dark:border-neutral-800 p-4 bg-background w-[95%] md:w-160 hover:bg-background dark:hover:bg-background cursor-pointer"
-                    whileHover={{ 
-                      y: -2,
-                      transition: { duration: 0.2 }
-                    }}
-                  >
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="text-sm font-semibold text-foreground">@{authorNames[post.authorId] || "..."}</span>
-                      <span className="text-xs text-muted-foreground">{formatDateAndTime(post.createdAt)}</span>
-                    </div>
-                    <div className="text-sm text-muted-foreground whitespace-pre-line mb-3">{post.content}</div>
-                    
-                    <div className="flex items-center gap-4 pt-2 border-neutral-100 dark:border-neutral-700">
-                      <CommentButton 
-                        postId={post.id} 
-                        onThreadToggle={(showThread) => handleThreadToggle(post.id, showThread)}
-                      />
-                      <HeartButton 
-                        postId={post.id}
-                        initialCount={0}
-                        maxClicks={1}
-                        label=""
-                        onCountChange={(count) => {
-                          // Handle count change if needed
-                        }}
-                      />
-                    </div>
-                    
-                    {/* Comment thread */}
-                    <AnimatePresence>
-                      {commentThreads.has(post.id) && (
-                        <motion.div
-                          initial={{ opacity: 0, height: 0 }}
-                          animate={{ opacity: 1, height: "auto" }}
-                          exit={{ opacity: 0, height: 0 }}
-                          transition={{ duration: 0.3, ease: "easeInOut" }}
-                        >
-                          <CommentThread postId={post.id} />
-                        </motion.div>
+                    exit="hidden">
+                    <motion.button
+                      onClick={handleLoadMore}
+                      className="flex items-center gap-2 rounded-lg bg-muted hover:bg-muted/80 px-6 py-2 font-medium text-foreground transition-colors"
+                      whileHover={{
+                        scale: 1.05,
+                        backgroundColor: "hsl(var(--muted))",
+                      }}
+                      whileTap={{ scale: 0.95 }}
+                      transition={{ duration: 0.2 }}
+                      disabled={isLoadingMore}>
+                      {isLoadingMore ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <ArrowDown className="w-4 h-4" />
                       )}
-                    </AnimatePresence>
+                      {isLoadingMore ? "Loading..." : "Load More Posts"}
+                    </motion.button>
                   </motion.div>
-                ))}
+                )}
               </AnimatePresence>
-            </motion.div>
-            
-            {/* Load More Button */}
-            <AnimatePresence>
-              {hasMorePosts && (
-                <motion.div 
-                  className="flex justify-center w-[95%] md:w-160 pt-4"
-                  variants={loadMoreVariants}
-                  initial="hidden"
-                  animate="visible"
-                  exit="hidden"
-                >
-                  <motion.button
-                    onClick={handleLoadMore}
-                    className="flex items-center gap-2 rounded-lg bg-muted hover:bg-muted/80 px-6 py-2 font-medium text-foreground transition-colors"
-                    whileHover={{ 
-                      scale: 1.05,
-                      backgroundColor: "hsl(var(--muted))",
-                    }}
-                    whileTap={{ scale: 0.95 }}
-                    transition={{ duration: 0.2 }}
-                    disabled={isLoadingMore}
-                  >
-                    {isLoadingMore ? (
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                    ) : (
-                      <ArrowDown className="w-4 h-4" />
-                    )}
-                    {isLoadingMore ? "Loading..." : "Load More Posts"}
-                  </motion.button>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </>
-        )}
-      </div>
+            </>
+          )}
+        </div>
       </Suspense>
     </motion.div>
   );
