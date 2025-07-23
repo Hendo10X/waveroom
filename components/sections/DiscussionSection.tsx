@@ -93,6 +93,7 @@ export function DiscussionSection({
   const [commentThreads, setCommentThreads] = useState<Set<string>>(new Set());
   const [visiblePosts, setVisiblePosts] = useState(7);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [authorNamesLoading, setAuthorNamesLoading] = useState(false);
   const { data: session } = authClient.useSession();
 
   async function fetchPosts() {
@@ -100,6 +101,25 @@ export function DiscussionSection({
     const res = await getPosts();
     setPosts(res || []);
     setLoading(false);
+    // After posts are loaded, fetch all author names
+    if (res && res.length > 0) {
+      setAuthorNamesLoading(true);
+      const uniqueAuthorIds = Array.from(
+        new Set(res.map((post: any) => post.authorId))
+      );
+      await Promise.all(
+        uniqueAuthorIds.map(async (authorId) => {
+          if (!authorNames[authorId]) {
+            const user = await getUserById(authorId);
+            setAuthorNames((prev) => ({
+              ...prev,
+              [authorId]: user ? user.name : "Unknown",
+            }));
+          }
+        })
+      );
+      setAuthorNamesLoading(false);
+    }
   }
 
   async function fetchAuthorName(authorId: string) {
@@ -115,21 +135,33 @@ export function DiscussionSection({
     fetchPosts();
   }, []);
 
-  useEffect(() => {
-    posts.forEach((post) => {
-      if (post.authorId) fetchAuthorName(post.authorId);
-    });
-  }, [posts]);
-
-  async function handleSubmit(e: React.FormEvent) {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!content.trim() || !session?.user?.id) return;
     setSubmitting(true);
-    await createPost({ content, authorId: session.user.id });
+
+    // Create an optimistic post object
+    const optimisticPost = {
+      id: `optimistic-${Date.now()}`,
+      content,
+      authorId: session.user.id,
+      createdAt: new Date().toISOString(),
+      // Add any other fields your post object needs
+    };
+    setPosts((prev) => [optimisticPost, ...prev]);
     setContent("");
-    await fetchPosts();
-    setSubmitting(false);
-  }
+
+    try {
+      createPost({ content, authorId: session.user.id });
+      // Re-fetch posts to get the real data (with correct id, etc.)
+      fetchPosts();
+    } catch (err) {
+      // Remove the optimistic post if the backend call fails
+      setPosts((prev) => prev.filter((p) => p.id !== optimisticPost.id));
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   const handleLike = (postId: string) => {
     setLikedPosts((prev) => {
@@ -204,7 +236,7 @@ export function DiscussionSection({
       </motion.form>
       <Suspense fallback={<div>Loading posts...</div>}>
         <div className="flex flex-col gap-4 mt-4">
-          {loading ? (
+          {loading || authorNamesLoading ? (
             <motion.div
               className="flex w-[95%] md:w-160 md:h-40 justify-center items-center h-full"
               initial={{ opacity: 0 }}

@@ -201,19 +201,19 @@ const HeartButton = React.forwardRef<HTMLButtonElement, HeartButtonProps>(
             </AnimatePresence>
           </motion.div>
 
-          <AnimatePresence mode="wait">
-            <motion.span
-              key={count}
-              variants={animations.count}
-              initial="initial"
-              animate="animate"
-              exit="exit"
-              transition={{ duration: 0.2 }}
+            <AnimatePresence mode="wait">
+              <motion.span
+                key={count}
+                variants={animations.count}
+                initial="initial"
+                animate="animate"
+                exit="exit"
+                transition={{ duration: 0.2 }}
               className="text-xs font-medium"
-            >
-              {count}
-            </motion.span>
-          </AnimatePresence>
+              >
+                {count}
+              </motion.span>
+            </AnimatePresence>
         </button>
 
         <AnimatePresence>
