@@ -94,6 +94,7 @@ export function DiscussionSection({
   const [visiblePosts, setVisiblePosts] = useState(7);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [authorNamesLoading, setAuthorNamesLoading] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const { data: session } = authClient.useSession();
 
   async function fetchPosts() {
@@ -132,6 +133,7 @@ export function DiscussionSection({
   }
 
   useEffect(() => {
+    setMounted(true);
     fetchPosts();
   }, []);
 
@@ -236,7 +238,7 @@ export function DiscussionSection({
       </motion.form>
       <Suspense fallback={<div>Loading posts...</div>}>
         <div className="flex flex-col gap-4 mt-4">
-          {loading || authorNamesLoading ? (
+          {!mounted || loading || authorNamesLoading ? (
             <motion.div
               className="flex w-[95%] md:w-160 md:h-40 justify-center items-center h-full"
               initial={{ opacity: 0 }}
