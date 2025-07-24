@@ -18,6 +18,8 @@ import { SavedSection } from "@/components/sections/SavedSection";
 import { Logout } from "@/components/logout";
 import { ThemeToggle } from "@/components/theme-toggle";
 import Image from "next/image";
+import Link from "next/link";
+import { UserProfileDialog } from "@/components/dashboard/UserProfileDialog";
 
 type SectionKey = "discussion" | "charts" | "playlists" | "saved";
 
@@ -156,13 +158,19 @@ const Sidebar = ({
       ))}
     </nav>
 
-    <div className="mt-auto pt-8 border-t border-neutral-200 dark:border-neutral-800">
-      <div className="flex items-center gap-3 mb-4 px-4 py-2 rounded-lg bg-neutral-100 dark:bg-neutral-800">
-        <IconUser className="size-5 text-foreground" />
-        <span className="text-sm font-medium text-foreground">
-          hey, {userName}
-        </span>
-      </div>
+    <div className="pt-8 border-t border-neutral-200 dark:border-neutral-800">
+      <UserProfileDialog
+        trigger={
+          <button
+            type="button"
+            className="mb-4 flex items-center gap-2 cursor-pointer hover:bg-muted rounded-lg px-2 py-2 transition-colors w-full text-left">
+            <IconUser className="size-5 text-foreground" />
+            <span className="text-sm font-medium text-foreground">
+              hey, {userName}
+            </span>
+          </button>
+        }
+      />
       <div className="flex items-center gap-2 px-4">
         <ThemeToggle />
         <Logout />
