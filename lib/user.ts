@@ -1,7 +1,7 @@
 "use server";
 import { db } from "@/db/drizzle";
-import { user, post, playlist } from "@/db/schema";
-import { eq, count } from "drizzle-orm";
+import { user, post, playlist, bookmark } from "@/db/schema";
+import { eq, count, and } from "drizzle-orm";
 
 export async function getUsers() {
   try {
@@ -47,4 +47,56 @@ export async function getUserPlaylistCount(userId: string) {
     console.error(error, "Error counting user playlists");
     return 0;
   }
+}
+
+export async function addBookmark(
+  userId: string,
+  targetId: string,
+  type: "post" | "playlist"
+) {
+  await db.insert(bookmark).values({
+    id: crypto.randomUUID(),
+    userId,
+    targetId,
+    type,
+    createdAt: new Date(),
+  });
+}
+
+export async function removeBookmark(
+  userId: string,
+  targetId: string,
+  type: "post" | "playlist"
+) {
+  await db
+    .delete(bookmark)
+    .where(
+      and(
+        eq(bookmark.userId, userId),
+        eq(bookmark.targetId, targetId),
+        eq(bookmark.type, type)
+      )
+    );
+}
+
+export async function isBookmarked(
+  userId: string,
+  targetId: string,
+  type: "post" | "playlist"
+) {
+  const result = await db
+    .select()
+    .from(bookmark)
+    .where(
+      and(
+        eq(bookmark.userId, userId),
+        eq(bookmark.targetId, targetId),
+        eq(bookmark.type, type)
+      )
+    );
+  return result.length > 0;
+}
+
+export async function getBookmarks(userId: string) {
+  return db.select().from(bookmark).where(eq(bookmark.userId, userId));
 }

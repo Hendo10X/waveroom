@@ -30,7 +30,7 @@ export function ChartTable({ tracks }: { tracks: Track[] }) {
                 <span className="truncate overflow-hidden whitespace-nowrap block max-w-[120px] sm:max-w-[200px]">{track.name}</span>
               </a>
             </TableCell>
-            <TableCell className="font-dm-mono max-w-[100px] truncate overflow-hidden whitespace-nowrap">{track.artist}</TableCell>
+              <TableCell className="font-dm-mono max-w-[100px] truncate overflow-hidden whitespace-nowrap">{track.artist}</TableCell>
             <TableCell className="font-dm-mono max-w-[100px] truncate overflow-hidden whitespace-nowrap">{track.album}</TableCell>
           </TableRow>
         ))}

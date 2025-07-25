@@ -3,10 +3,12 @@ import { useState, useEffect, Suspense } from "react";
 import { createPost, getPosts } from "@/lib/post";
 import { authClient } from "@/lib/auth-client";
 import { getUserById } from "@/lib/user";
-import { Loader2, ArrowDown } from "lucide-react";
+import { Loader2, ArrowDown, Bookmark, BookmarkCheck } from "lucide-react";
 import { HeartButton } from "@/components/shsfui/button/heart-button";
 import { CommentButton, CommentThread } from "@/components/ui/CommentButton";
 import { motion, AnimatePresence, Variants } from "framer-motion";
+import { toast } from "sonner";
+import { addBookmark, removeBookmark, isBookmarked } from "@/lib/user";
 
 function formatDateAndTime(dateString: string) {
   const date = new Date(dateString);
@@ -78,6 +80,107 @@ const staggerContainer: Variants = {
     },
   },
 };
+
+type DiscussionPostProps = {
+  post: any;
+  session: any;
+  authorName: string;
+  commentThreads: Set<string>;
+  handleThreadToggle: (postId: string, showThread: boolean) => void;
+};
+
+function DiscussionPost({
+  post,
+  session,
+  authorName,
+  commentThreads,
+  handleThreadToggle,
+}: DiscussionPostProps) {
+  const [bookmarked, setBookmarked] = useState(false);
+  const [animating, setAnimating] = useState(false);
+  useEffect(() => {
+    if (!session?.user?.id) return;
+    isBookmarked(session.user.id, post.id, "post").then(setBookmarked);
+  }, [session?.user?.id, post.id]);
+  const handleBookmark = async () => {
+    if (!session?.user?.id) return;
+    setAnimating(true);
+    if (!bookmarked) {
+      await addBookmark(session.user.id, post.id, "post");
+      setBookmarked(true);
+      toast.success("Bookmark successfully added");
+    } else {
+      await removeBookmark(session.user.id, post.id, "post");
+      setBookmarked(false);
+      toast("Bookmark removed");
+    }
+    setTimeout(() => setAnimating(false), 250);
+  };
+  return (
+    <motion.div
+      key={post.id}
+      variants={postVariants}
+      initial="hidden"
+      animate="visible"
+      exit="exit"
+      layout
+      className="border-b border-neutral-200 dark:border-neutral-800 p-4 bg-background w-[95%] md:w-160 hover:bg-background dark:hover:bg-background cursor-pointer"
+      whileHover={{
+        y: -2,
+        transition: { duration: 0.2 },
+      }}>
+      <div className="flex items-center gap-2 mb-1">
+        <span className="text-sm font-semibold text-foreground">
+          @{authorName}
+        </span>
+        <span className="text-xs text-muted-foreground">
+          {formatDateAndTime(post.createdAt)}
+        </span>
+      </div>
+      <div className="text-sm text-muted-foreground whitespace-pre-line mb-3">
+        {post.content}
+      </div>
+      <div className="flex items-center gap-4 pt-2 border-neutral-100 dark:border-neutral-700">
+        <CommentButton
+          postId={post.id}
+          onThreadToggle={(showThread) =>
+            handleThreadToggle(post.id, showThread)
+          }
+        />
+        <HeartButton
+          postId={post.id}
+          initialCount={0}
+          maxClicks={1}
+          label=""
+          onCountChange={() => {}}
+        />
+        <motion.button
+          onClick={handleBookmark}
+          aria-label={bookmarked ? "Remove bookmark" : "Bookmark"}
+          className="focus:outline-none transition-colors">
+          <Bookmark
+            className={`w-4 h-4 ${
+              bookmarked ? "text-blue-500" : "text-muted-foreground"
+            }`}
+            fill={bookmarked ? "#3b82f6" : "none"}
+            style={{ transition: "color 0.2s, fill 0.2s" }}
+          />
+        </motion.button>
+      </div>
+      <AnimatePresence>
+        {commentThreads.has(post.id) && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.3, ease: "easeInOut" }}>
+            <CommentThread postId={post.id} />
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.div>
+  );
+}
 
 export function DiscussionSection({
   data,
@@ -262,62 +365,15 @@ export function DiscussionSection({
                 animate="visible"
                 className="flex flex-col gap-4">
                 <AnimatePresence mode="popLayout">
-                  {displayedPosts.map((post, index) => (
-                    <motion.div
+                  {displayedPosts.map((post) => (
+                    <DiscussionPost
                       key={post.id}
-                      variants={postVariants}
-                      initial="hidden"
-                      animate="visible"
-                      exit="exit"
-                      layout
-                      className="border-b border-neutral-200 dark:border-neutral-800 p-4 bg-background w-[95%] md:w-160 hover:bg-background dark:hover:bg-background cursor-pointer"
-                      whileHover={{
-                        y: -2,
-                        transition: { duration: 0.2 },
-                      }}>
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="text-sm font-semibold text-foreground">
-                          @{authorNames[post.authorId] || "..."}
-                        </span>
-                        <span className="text-xs text-muted-foreground">
-                          {formatDateAndTime(post.createdAt)}
-                        </span>
-                      </div>
-                      <div className="text-sm text-muted-foreground whitespace-pre-line mb-3">
-                        {post.content}
-                      </div>
-
-                      <div className="flex items-center gap-4 pt-2 border-neutral-100 dark:border-neutral-700">
-                        <CommentButton
-                          postId={post.id}
-                          onThreadToggle={(showThread) =>
-                            handleThreadToggle(post.id, showThread)
-                          }
-                        />
-                        <HeartButton
-                          postId={post.id}
-                          initialCount={0}
-                          maxClicks={1}
-                          label=""
-                          onCountChange={(count) => {
-                            // Handle count change if needed
-                          }}
-                        />
-                      </div>
-
-                      {/* Comment thread */}
-                      <AnimatePresence>
-                        {commentThreads.has(post.id) && (
-                          <motion.div
-                            initial={{ opacity: 0, height: 0 }}
-                            animate={{ opacity: 1, height: "auto" }}
-                            exit={{ opacity: 0, height: 0 }}
-                            transition={{ duration: 0.3, ease: "easeInOut" }}>
-                            <CommentThread postId={post.id} />
-                          </motion.div>
-                        )}
-                      </AnimatePresence>
-                    </motion.div>
+                      post={post}
+                      session={session}
+                      authorName={authorNames[post.authorId] || "..."}
+                      commentThreads={commentThreads}
+                      handleThreadToggle={handleThreadToggle}
+                    />
                   ))}
                 </AnimatePresence>
               </motion.div>

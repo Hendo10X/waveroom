@@ -6,7 +6,6 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogClose,
 } from "@/components/ui/dialog";
 import { Loader2, PlusIcon } from "lucide-react";
 import { Trash2, Heart, Share2 } from "lucide-react";

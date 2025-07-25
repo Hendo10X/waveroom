@@ -131,6 +131,18 @@ export const playlist = pgTable("playlist", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+export const bookmark = pgTable("bookmark", {
+  id: text("id").primaryKey(),
+  userId: text("user_id")
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
+  targetId: text("target_id").notNull(), // postId or playlistId
+  type: text("type").notNull(), // "post" or "playlist"
+  createdAt: timestamp("created_at")
+    .$defaultFn(() => new Date())
+    .notNull(),
+});
+
 export const schema = {
   user,
   session,
@@ -140,4 +152,5 @@ export const schema = {
   postLike,
   comment,
   playlist,
+  bookmark,
 };
