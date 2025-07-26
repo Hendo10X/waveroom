@@ -282,7 +282,9 @@ export function PlaylistSection({
                   !session?.user?.id
                 }>
                 {submitting ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span className="flex justify-center items-center w-full">
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  </span>
                 ) : (
                   "Add Playlist"
                 )}
