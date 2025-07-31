@@ -330,12 +330,28 @@ export function DiscussionSection({
         <div className="flex justify-end w-[95%] md:w-160">
           <motion.button
             type="submit"
-            className="items-center gap-2 rounded-lg bg-[#A2EE2F] px-5 md:px-3 py-1 md:py-2 font-medium text-black opacity-90 text-sm md:text-base mt-2"
+            className={`items-center gap-2 rounded-lg px-5 md:px-3 py-1 md:py-2 font-medium text-sm md:text-base mt-2 transition-all duration-200 ${
+              submitting || !content.trim() || !session?.user?.id
+                ? "bg-neutral-300 text-neutral-500 cursor-not-allowed opacity-50"
+                : "bg-[#A2EE2F] text-black opacity-90 hover:opacity-100"
+            }`}
             disabled={submitting || !content.trim() || !session?.user?.id}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
+            whileHover={
+              submitting || !content.trim() || !session?.user?.id
+                ? {}
+                : { scale: 1.02 }
+            }
+            whileTap={
+              submitting || !content.trim() || !session?.user?.id
+                ? {}
+                : { scale: 0.98 }
+            }
             transition={{ duration: 0.2 }}>
-            {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : "Post"}
+            {submitting ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <span className="text-sm">Say your mind</span>
+            )}
           </motion.button>
         </div>
       </motion.form>
