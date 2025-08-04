@@ -1,10 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import { Martian_Mono } from "next/font/google";
 import { Inter } from "next/font/google";
+import { Bebas_Neue } from "next/font/google";
 import "./globals.css";
-import { Instrument_Serif } from "next/font/google";
-import { Archivo_Narrow } from "next/font/google";
 import { DM_Mono } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/components/theme-provider";
@@ -19,26 +17,15 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const martianMono = Martian_Mono({
-  variable: "--font-martian-mono",
-  subsets: ["latin"],
-});
-
 const inter = Inter({
   variable: "--font-inter",
   subsets: ["latin"],
 });
 
-const instrumentSerif = Instrument_Serif({
-  variable: "--font-instrument-serif",
+const bebasNeue = Bebas_Neue({
+  variable: "--font-bebas-neue",
   subsets: ["latin"],
-  weight: ["400"],
-});
-
-const archivoNarrow = Archivo_Narrow({
-  variable: "--font-archivo-narrow",
-  subsets: ["latin"],
-  weight: ["400"],
+  weight: "400",
 });
 
 const dmMono = DM_Mono({
@@ -61,7 +48,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${martianMono.variable} ${inter.variable} ${instrumentSerif.variable} ${archivoNarrow.variable} ${dmMono.variable} antialiased`}>
+        className={`${geistSans.variable} ${geistMono.variable}  ${inter.variable} ${dmMono.variable} ${bebasNeue.variable} antialiased`}>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
