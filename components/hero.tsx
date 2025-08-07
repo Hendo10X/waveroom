@@ -11,7 +11,7 @@ export function Hero() {
         initial={{ opacity: 0, y: -50 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, ease: "easeOut" }}
-        className="text-7xl font-bebas-neue text-center leading-tightest tracking-tightest">
+        className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bebas-neue text-center leading-tightest tracking-tightest">
         <motion.span
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -38,7 +38,7 @@ export function Hero() {
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, delay: 0.8, ease: "easeOut" }}
-        className="text-lg font-inter text-center break-words w-1/2 mt-4 text-muted-foreground">
+        className="text-sm sm:text-base md:text-lg font-inter text-center break-words w-2/3 sm:w-3/4 md:w-2/3 lg:w-1/2 mt-4 text-muted-foreground px-4">
         Waveroom gives you the ability to find music friends, surf the charts
         and share your well curated playlists.
       </motion.p>
@@ -47,12 +47,12 @@ export function Hero() {
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{ duration: 0.8, delay: 1.0, ease: "easeOut" }}
         whileHover={{ scale: 1.05 }}>
-        <Button className="mt-4 rounded-full hover:bg-[#A2EE2F]/80 bg-[#A2EE2F] text-[#243C00] font-inter font-semibold flex flex-row items-center gap-2 px-6 py-4 cursor-pointer">
+        <Button className="mt-4 rounded-full hover:bg-[#A2EE2F]/80 bg-[#A2EE2F] text-[#243C00] font-inter font-semibold flex flex-row items-center gap-2 px-4 sm:px-6 py-3 sm:py-4 cursor-pointer text-sm sm:text-base">
           Get Started
           <motion.div
             whileHover={{ rotate: 360 }}
             transition={{ duration: 0.5 }}>
-            <ArrowRightIcon className="w-4 h-4" />
+            <ArrowRightIcon className="w-3 h-3 sm:w-4 sm:h-4" />
           </motion.div>
         </Button>
       </motion.div>

@@ -2,6 +2,7 @@
 
 import React, { useRef, useState } from "react";
 import { motion } from "framer-motion";
+import Link from "next/link";
 
 type NavState = {
   opacity: number;
@@ -44,7 +45,7 @@ const Vercel = () => {
     }));
 
   return (
-    <div className="center text-white h-full w-full">
+    <div className="center text-foreground h-full w-full">
       <div className="w-fit h-14 rounded mx-auto bg-background">
         <nav className="p-1 h-full">
           <ul className="flex h-full items-center gap-2 relative">
@@ -55,14 +56,18 @@ const Vercel = () => {
                   onMouseEnter={handleMouseEnter}
                   onMouseLeave={handleMouseLeave}
                   key={index}
-                  className="h-full flex relative items-center justify-center px-5 z-10 cursor-pointer mix-blend-difference text-white text-sm font-dm-mono tracking-tightest uppercase">
-                  {route.name}
+                  className="h-full flex relative items-center justify-center px-5 z-10 cursor-pointer text-foreground text-sm font-dm-mono tracking-tightest uppercase hover:text-muted-foreground transition-colors">
+                  <Link
+                    href={route.href}
+                    className="h-full flex items-center justify-center">
+                    {route.name}
+                  </Link>
                 </li>
               );
             })}
             <motion.li
               animate={state}
-              className="absolute bg-[#292929] rounded z-0 h-full"
+              className="absolute bg-muted rounded z-0 h-full"
             />
           </ul>
         </nav>

@@ -5,6 +5,5 @@ export function Navbar() {
     <div className="flex justify-end items-center p-4">
       <Logout />
     </div>
-  )
+  );
 }
-    
