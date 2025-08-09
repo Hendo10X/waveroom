@@ -66,7 +66,6 @@ export const Footer1 = () => {
             </span>
           </motion.div>
 
-          {/* Navigation Links */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
@@ -82,7 +81,6 @@ export const Footer1 = () => {
             ))}
           </motion.div>
 
-          {/* Social Media Links */}
           <motion.div
             initial={{ opacity: 0, x: 20 }}
             animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: 20 }}
@@ -102,7 +100,6 @@ export const Footer1 = () => {
           </motion.div>
         </motion.div>
 
-        {/* Copyright */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={isInView ? { opacity: 1 } : { opacity: 0 }}
