@@ -6,6 +6,7 @@ import "./globals.css";
 import { DM_Mono } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/components/theme-provider";
+import { LenisProvider } from "./providers/lenis-provider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -48,14 +49,18 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable}  ${inter.variable} ${dmMono.variable} ${bebasNeue.variable} antialiased`}>
+        className={`${geistSans.variable} ${geistMono.variable} ${inter.variable} ${dmMono.variable} ${bebasNeue.variable} antialiased`}
+        suppressHydrationWarning>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
           enableSystem
-          disableTransitionOnChange>
-          <Toaster className="bg-background text-foreground" />
-          {children}
+          disableTransitionOnChange
+          storageKey="waveroom-theme">
+          <LenisProvider>
+            <Toaster className="bg-background text-foreground" />
+            {children}
+          </LenisProvider>
         </ThemeProvider>
       </body>
     </html>

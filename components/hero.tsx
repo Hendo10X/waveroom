@@ -3,10 +3,11 @@
 import { motion } from "motion/react";
 import { Button } from "./ui/button";
 import { ArrowRightIcon } from "lucide-react";
+import Link from "next/link";
 
 export function Hero() {
   return (
-    <div className="flex flex-col items-center justify-center h-screen">
+    <div className="flex flex-col items-center justify-center h-[calc(100dvh-41px)]">
       <motion.h1
         initial={{ opacity: 0, y: -50 }}
         animate={{ opacity: 1, y: 0 }}
@@ -31,7 +32,7 @@ export function Hero() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.6, ease: "easeOut" }}
           className="block">
-          join the bant!
+          Become the banter.
         </motion.span>
       </motion.h1>
       <motion.p
@@ -48,7 +49,11 @@ export function Hero() {
         transition={{ duration: 0.8, delay: 1.0, ease: "easeOut" }}
         whileHover={{ scale: 1.05 }}>
         <Button className="mt-4 rounded-full hover:bg-[#A2EE2F]/80 bg-[#A2EE2F] text-[#243C00] font-inter font-semibold flex flex-row items-center gap-2 px-4 sm:px-6 py-3 sm:py-4 cursor-pointer text-sm sm:text-base">
-          Get Started
+          <Link href="/signup">
+            <span className="font-dm-mono tracking-tightest uppercase">
+              Get Started
+            </span>
+          </Link>
           <motion.div
             whileHover={{ rotate: 360 }}
             transition={{ duration: 0.5 }}>
