@@ -1,4 +1,5 @@
 import { Table, TableHeader, TableBody, TableHead, TableRow, TableCell } from "@/components/ui/table";
+import Image from "next/image";
 
 export interface Track {
   rank: number;
@@ -26,7 +27,7 @@ export function ChartTable({ tracks }: { tracks: Track[] }) {
             <TableCell>{track.rank}</TableCell>
             <TableCell className="max-w-xs">
               <a href={track.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:underline">
-                {track.image && <img src={track.image} alt="cover" className="w-8 h-8 rounded" />}
+                {track.image && <Image src={track.image} alt="cover" width={32} height={32} className="w-8 h-8 rounded" />}
                 <span className="truncate overflow-hidden whitespace-nowrap block max-w-[120px] sm:max-w-[200px]">{track.name}</span>
               </a>
             </TableCell>

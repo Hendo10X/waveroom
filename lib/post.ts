@@ -8,6 +8,7 @@ import type { InferInsertModel, InferSelectModel } from "drizzle-orm";
 
 type Post = InferSelectModel<typeof post>;
 type NewPost = InferInsertModel<typeof post>;
+type Comment = InferSelectModel<typeof commentTable>;
 
 export async function getPosts() {
   try {
@@ -237,7 +238,7 @@ export async function getComments(postId: string) {
       .where(eq(commentTable.postId, postId))
       .orderBy(commentTable.createdAt);
 
-    const map: Record<string, any[]> = {};
+    const map: Record<string, Comment[]> = {};
     comments.forEach((c) => {
       if (!c.parentId) {
         map[c.id] = [];
@@ -271,7 +272,7 @@ export async function addComment({
   parentId?: string;
 }) {
   try {
-    const [newComment]: any = await db
+    const [newComment] = await db
       .insert(commentTable)
       .values({
         id: crypto.randomUUID(),

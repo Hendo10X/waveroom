@@ -30,7 +30,7 @@ export function LikeButton({ postId }: { postId: string }) {
     setTimeout(() => setAnimate(false), 350);
     try {
       await toggleLike(postId, userId);
-    } catch (e) {
+    } catch {
       setLiked((prev) => !prev);
       setLikeCount((prev) => prev + (liked ? 1 : -1));
     }
@@ -43,12 +43,15 @@ export function LikeButton({ postId }: { postId: string }) {
       onClick={handleLike}
       disabled={!userId}
       className={`relative flex items-center justify-center gap-2 transition-colors ${
-        liked ? "text-red-500 hover:text-red-600" : "text-muted-foreground hover:text-foreground"
+        liked
+          ? "text-red-500 hover:text-red-600"
+          : "text-muted-foreground hover:text-foreground"
       }`}
-      style={{ minWidth: 36, minHeight: 36 }}
-    >
+      style={{ minWidth: 36, minHeight: 36 }}>
       <Heart
-        className={`w-4 h-4 ${animate ? "animate-like-bounce" : ""} ${liked ? "fill-current" : ""}`}
+        className={`w-4 h-4 ${animate ? "animate-like-bounce" : ""} ${
+          liked ? "fill-current" : ""
+        }`}
       />
       <span className="text-xs font-bold">{likeCount}</span>
     </button>
@@ -57,4 +60,4 @@ export function LikeButton({ postId }: { postId: string }) {
 
 // Add this to your global CSS or Tailwind config:
 // .animate-like-bounce { animation: like-bounce 0.35s cubic-bezier(.36,1.7,.3,.9); }
-// @keyframes like-bounce { 0% { transform: scale(1); } 30% { transform: scale(1.3); } 60% { transform: scale(0.9); } 100% { transform: scale(1); } } 
+// @keyframes like-bounce { 0% { transform: scale(1); } 30% { transform: scale(1.3); } 60% { transform: scale(0.9); } 100% { transform: scale(1); } }

@@ -18,7 +18,7 @@ import { SavedSection } from "@/components/sections/SavedSection";
 import { Logout } from "@/components/logout";
 import { ThemeToggle } from "@/components/theme-toggle";
 import Image from "next/image";
-import Link from "next/link";
+
 import { UserProfileDialog } from "@/components/dashboard/UserProfileDialog";
 
 type SectionKey = "discussion" | "charts" | "playlists" | "saved";

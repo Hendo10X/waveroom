@@ -1,17 +1,16 @@
 "use client";
-import { useState, useEffect, Suspense } from "react";
+import { useState, useEffect, Suspense, useCallback } from "react";
 import { createPost, getPosts } from "@/lib/post";
 import { authClient } from "@/lib/auth-client";
 import { getUserById } from "@/lib/user";
-import { Loader2, ArrowDown, Bookmark, BookmarkCheck } from "lucide-react";
+import { Loader2, ArrowDown, Bookmark } from "lucide-react";
 import { HeartButton } from "@/components/shsfui/button/heart-button";
 import { CommentButton, CommentThread } from "@/components/ui/CommentButton";
 import { motion, AnimatePresence, Variants } from "framer-motion";
 import { toast } from "sonner";
 import { addBookmark, removeBookmark, isBookmarked } from "@/lib/user";
 
-function formatDateAndTime(dateString: string) {
-  const date = new Date(dateString);
+function formatDateAndTime(date: Date) {
   const day = date.getDate();
   const month = date.toLocaleString("default", { month: "long" });
 
@@ -82,8 +81,14 @@ const staggerContainer: Variants = {
 };
 
 type DiscussionPostProps = {
-  post: any;
-  session: any;
+  post: {
+    id: string;
+    content: string;
+    authorId: string;
+    createdAt: Date;
+    likesCount: number;
+  };
+  session: { user: { id: string } } | null;
   authorName: string;
   commentThreads: Set<string>;
   handleThreadToggle: (postId: string, showThread: boolean) => void;
@@ -97,14 +102,13 @@ function DiscussionPost({
   handleThreadToggle,
 }: DiscussionPostProps) {
   const [bookmarked, setBookmarked] = useState(false);
-  const [animating, setAnimating] = useState(false);
+
   useEffect(() => {
     if (!session?.user?.id) return;
     isBookmarked(session.user.id, post.id, "post").then(setBookmarked);
   }, [session?.user?.id, post.id]);
   const handleBookmark = async () => {
     if (!session?.user?.id) return;
-    setAnimating(true);
     if (!bookmarked) {
       await addBookmark(session.user.id, post.id, "post");
       setBookmarked(true);
@@ -114,7 +118,6 @@ function DiscussionPost({
       setBookmarked(false);
       toast("Bookmark removed");
     }
-    setTimeout(() => setAnimating(false), 250);
   };
   return (
     <motion.div
@@ -182,17 +185,21 @@ function DiscussionPost({
   );
 }
 
-export function DiscussionSection({
-  data,
-}: {
-  data: { title: string; content: string };
-}) {
+export function DiscussionSection() {
   const [content, setContent] = useState("");
-  const [posts, setPosts] = useState<any[]>([]);
+  const [posts, setPosts] = useState<
+    {
+      id: string;
+      content: string;
+      authorId: string;
+      createdAt: Date;
+      likesCount: number;
+    }[]
+  >([]);
   const [authorNames, setAuthorNames] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const [likedPosts, setLikedPosts] = useState<Set<string>>(new Set());
+
   const [commentThreads, setCommentThreads] = useState<Set<string>>(new Set());
   const [visiblePosts, setVisiblePosts] = useState(7);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
@@ -200,7 +207,7 @@ export function DiscussionSection({
   const [mounted, setMounted] = useState(false);
   const { data: session } = authClient.useSession();
 
-  async function fetchPosts() {
+  const fetchPosts = useCallback(async () => {
     setLoading(true);
     const res = await getPosts();
     setPosts(res || []);
@@ -209,7 +216,7 @@ export function DiscussionSection({
     if (res && res.length > 0) {
       setAuthorNamesLoading(true);
       const uniqueAuthorIds = Array.from(
-        new Set(res.map((post: any) => post.authorId))
+        new Set(res.map((post: { authorId: string }) => post.authorId))
       );
       await Promise.all(
         uniqueAuthorIds.map(async (authorId) => {
@@ -224,23 +231,14 @@ export function DiscussionSection({
       );
       setAuthorNamesLoading(false);
     }
-  }
-
-  async function fetchAuthorName(authorId: string) {
-    if (authorNames[authorId]) return;
-    const user = await getUserById(authorId);
-    setAuthorNames((prev) => ({
-      ...prev,
-      [authorId]: user ? user.name : "Unknown",
-    }));
-  }
+  }, [authorNames]);
 
   useEffect(() => {
     setMounted(true);
     fetchPosts();
-  }, []);
+  }, [fetchPosts]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!content.trim() || !session?.user?.id) return;
     setSubmitting(true);
@@ -250,8 +248,8 @@ export function DiscussionSection({
       id: `optimistic-${Date.now()}`,
       content,
       authorId: session.user.id,
-      createdAt: new Date().toISOString(),
-      // Add any other fields your post object needs
+      createdAt: new Date(),
+      likesCount: 0,
     };
     setPosts((prev) => [optimisticPost, ...prev]);
     setContent("");
@@ -260,29 +258,12 @@ export function DiscussionSection({
       createPost({ content, authorId: session.user.id });
       // Re-fetch posts to get the real data (with correct id, etc.)
       fetchPosts();
-    } catch (err) {
+    } catch {
       // Remove the optimistic post if the backend call fails
       setPosts((prev) => prev.filter((p) => p.id !== optimisticPost.id));
     } finally {
       setSubmitting(false);
     }
-  };
-
-  const handleLike = (postId: string) => {
-    setLikedPosts((prev) => {
-      const newSet = new Set(prev);
-      if (newSet.has(postId)) {
-        newSet.delete(postId);
-      } else {
-        newSet.add(postId);
-      }
-      return newSet;
-    });
-  };
-
-  const handleComment = (postId: string) => {
-    // TODO: Implement comment functionality
-    console.log("Comment on post:", postId);
   };
 
   const handleThreadToggle = (postId: string, showThread: boolean) => {
@@ -300,7 +281,7 @@ export function DiscussionSection({
   const handleLoadMore = async () => {
     setIsLoadingMore(true);
     // Simulate a small delay for smooth animation
-    await new Promise((resolve) => setTimeout(resolve, 300));
+    await new Promise<void>((resolve) => setTimeout(resolve, 300));
     setVisiblePosts((prev) => prev + 7);
     setIsLoadingMore(false);
   };

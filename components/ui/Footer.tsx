@@ -60,7 +60,13 @@ export const Footer1 = () => {
             animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: -20 }}
             transition={{ duration: 0.6, delay: 0.2, ease: "easeOut" }}
             className="flex items-center gap-3">
-            <Image src={Waveroom} alt="Waveroom" width={90} height={90} />
+            <Image
+              src={Waveroom}
+              alt="Waveroom"
+              width={40}
+              height={40}
+              className="w-8 h-8 md:w-10 md:h-10"
+            />
             <span className="text-lg md:text-xl font-dm-mono tracking-tightest uppercase">
               Waveroom
             </span>
@@ -71,7 +77,7 @@ export const Footer1 = () => {
             animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
             transition={{ duration: 0.6, delay: 0.4, ease: "easeOut" }}
             className="flex flex-wrap justify-center gap-6 md:gap-8">
-            {navigationLinks.map((link, index) => (
+            {navigationLinks.map((link) => (
               <Link
                 key={link.title}
                 href={link.href}
@@ -86,7 +92,7 @@ export const Footer1 = () => {
             animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: 20 }}
             transition={{ duration: 0.6, delay: 0.6, ease: "easeOut" }}
             className="flex gap-4 md:gap-6">
-            {socialLinks.map((social, index) => (
+            {socialLinks.map((social) => (
               <Link
                 key={social.title}
                 href={social.href}

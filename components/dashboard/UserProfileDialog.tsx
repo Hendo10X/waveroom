@@ -9,10 +9,8 @@ import {
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
   DialogTitle,
   DialogTrigger,
-  DialogClose,
 } from "@/components/ui/dialog";
 import {
   Card,
@@ -21,19 +19,6 @@ import {
   CardContent,
   CardDescription,
 } from "@/components/ui/card";
-
-const genres = [
-  "Rock",
-  "Pop",
-  "Hip-Hop",
-  "Jazz",
-  "Classical",
-  "Electronic",
-  "Country",
-  "R&B",
-  "Reggae",
-  "Metal",
-];
 
 async function getUserStats(userId: string) {
   const postCount = await getUserPostCount(userId);
@@ -44,7 +29,9 @@ async function getUserStats(userId: string) {
 export function UserProfileDialog({ trigger }: { trigger: React.ReactNode }) {
   const { data: session } = authClient.useSession();
   const userId = session?.user?.id;
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<{ name: string; createdAt?: Date } | null>(
+    null
+  );
   const [postCount, setPostCount] = useState(0);
   const [playlistCount, setPlaylistCount] = useState(0);
 
@@ -85,7 +72,7 @@ export function UserProfileDialog({ trigger }: { trigger: React.ReactNode }) {
                     <div className="text-xs text-muted-foreground">
                       Joined{" "}
                       {user.createdAt
-                        ? new Date(user.createdAt).toLocaleDateString()
+                        ? user.createdAt.toLocaleDateString()
                         : "-"}
                     </div>
                   </div>

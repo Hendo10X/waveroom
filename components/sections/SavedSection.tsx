@@ -9,7 +9,7 @@ export function SavedSection({
 }) {
   const { data: session } = authClient.useSession();
   const userId = session?.user?.id;
-  const [bookmarks, setBookmarks] = useState<any[]>([]);
+  const [bookmarks, setBookmarks] = useState<{ id: string; type: string; targetId: string }[]>([]);
 
   useEffect(() => {
     if (!userId) return;

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import Image from "next/image";
 import { authClient } from "@/lib/auth-client";
 import {
   Dialog,
@@ -50,9 +51,11 @@ function PlaylistCard({
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}>
         {playlist.image && (
-          <img
+          <Image
             src={playlist.image}
             alt="cover"
+            width={200}
+            height={200}
             className="w-full h-full object-cover"
           />
         )}
@@ -132,11 +135,7 @@ function PlaylistCard({
   );
 }
 
-export function PlaylistSection({
-  data,
-}: {
-  data: { title: string; content: string };
-}) {
+export function PlaylistSection() {
   const { data: session } = authClient.useSession();
   const [playlists, setPlaylists] = useState<Playlist[]>([]);
   const [name, setName] = useState("");
@@ -266,9 +265,11 @@ export function PlaylistSection({
                 onChange={handleImageChange}
               />
               {imagePreview && (
-                <img
+                <Image
                   src={imagePreview}
                   alt="Preview"
+                  width={96}
+                  height={96}
                   className="w-24 h-24 object-cover rounded mb-2 mx-auto"
                 />
               )}

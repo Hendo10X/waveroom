@@ -35,7 +35,7 @@ export function Logout() {
             <AlertDialogTitle>Are you sure?</AlertDialogTitle>
           </AlertDialogHeader>
           <AlertDialogDescription>
-           Don't want to leave? You can always come back though. Sad to see you go.
+           Don&apos;t want to leave? You can always come back though. Sad to see you go.
           </AlertDialogDescription>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>

@@ -24,7 +24,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import Link from "next/link";
+
 import { authClient } from "@/lib/auth-client";
 import { UserProfileDialog } from "@/components/dashboard/UserProfileDialog";
 

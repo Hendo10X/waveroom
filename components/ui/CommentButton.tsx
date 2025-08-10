@@ -221,7 +221,6 @@ export function CommentThread({ postId }: { postId: string }) {
 }
 
 export function CommentButton({ postId, onThreadToggle }: CommentButtonProps) {
-  const { data: session } = authClient.useSession();
   const [commentCount, setCommentCount] = useState(0);
   const [showThread, setShowThread] = useState(false);
 

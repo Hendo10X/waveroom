@@ -26,7 +26,7 @@ const HeartButton = React.forwardRef<HTMLButtonElement, HeartButtonProps>(
       initialCount = 0,
       initialClickCount = 0,
       maxClicks = 1,
-      label = "",
+
       onHeartComplete,
       onCountChange,
       ...restProps
@@ -37,7 +37,6 @@ const HeartButton = React.forwardRef<HTMLButtonElement, HeartButtonProps>(
     const [mounted, setMounted] = React.useState(false);
     const [clickCount, setClickCount] = React.useState(initialClickCount);
     const [count, setCount] = React.useState(initialCount);
-    const [liked, setLiked] = React.useState(false);
 
     React.useEffect(() => setMounted(true), []);
 
@@ -48,7 +47,6 @@ const HeartButton = React.forwardRef<HTMLButtonElement, HeartButtonProps>(
         setCount(likeCount);
         if (userId) {
           const hasLiked = await hasUserLiked(postId || "", userId);
-          setLiked(hasLiked);
           setClickCount(hasLiked ? 1 : 0);
         }
       }
@@ -95,14 +93,13 @@ const HeartButton = React.forwardRef<HTMLButtonElement, HeartButtonProps>(
 
     const handleClick = async () => {
       if (!userId || !postId) return;
-      
+
       if (clickCount < maxClicks) {
         const newClickCount = clickCount + 1;
         const newCount = count + 1;
 
         setClickCount(newClickCount);
         setCount(newCount);
-        setLiked(true);
 
         if (onCountChange) {
           onCountChange(newCount);
@@ -114,11 +111,10 @@ const HeartButton = React.forwardRef<HTMLButtonElement, HeartButtonProps>(
 
         try {
           await toggleLike(postId, userId);
-        } catch (e) {
+        } catch {
           // Revert on error
           setClickCount(clickCount);
           setCount(count);
-          setLiked(false);
         }
       } else {
         // Unlike
@@ -127,7 +123,6 @@ const HeartButton = React.forwardRef<HTMLButtonElement, HeartButtonProps>(
 
         setClickCount(newClickCount);
         setCount(newCount);
-        setLiked(false);
 
         if (onCountChange) {
           onCountChange(newCount);
@@ -135,11 +130,10 @@ const HeartButton = React.forwardRef<HTMLButtonElement, HeartButtonProps>(
 
         try {
           await toggleLike(postId, userId);
-        } catch (e) {
+        } catch {
           // Revert on error
           setClickCount(clickCount);
           setCount(count);
-          setLiked(true);
         }
       }
     };
@@ -150,7 +144,8 @@ const HeartButton = React.forwardRef<HTMLButtonElement, HeartButtonProps>(
       <div className="relative">
         <button
           ref={ref}
-          className={cn("flex items-center gap-2 transition-colors hover:text-red-500", 
+          className={cn(
+            "flex items-center gap-2 transition-colors hover:text-red-500",
             isActive ? "text-red-500" : "text-muted-foreground",
             className
           )}
@@ -158,8 +153,7 @@ const HeartButton = React.forwardRef<HTMLButtonElement, HeartButtonProps>(
           disabled={!userId}
           aria-pressed={isActive}
           type="button"
-          {...restProps}
-        >
+          {...restProps}>
           <motion.div
             initial={{ scale: 1 }}
             animate={{ scale: isActive ? sizeMultiplier : 1 }}
@@ -169,8 +163,7 @@ const HeartButton = React.forwardRef<HTMLButtonElement, HeartButtonProps>(
                 : animations.heart.tapActive
             }
             transition={{ type: "spring", stiffness: 300, damping: 15 }}
-            className="relative"
-          >
+            className="relative">
             <Heart className="opacity-60" size={16} aria-hidden="true" />
 
             <Heart
@@ -201,19 +194,18 @@ const HeartButton = React.forwardRef<HTMLButtonElement, HeartButtonProps>(
             </AnimatePresence>
           </motion.div>
 
-            <AnimatePresence mode="wait">
-              <motion.span
-                key={count}
-                variants={animations.count}
-                initial="initial"
-                animate="animate"
-                exit="exit"
-                transition={{ duration: 0.2 }}
-              className="text-xs font-medium"
-              >
-                {count}
-              </motion.span>
-            </AnimatePresence>
+          <AnimatePresence mode="wait">
+            <motion.span
+              key={count}
+              variants={animations.count}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+              transition={{ duration: 0.2 }}
+              className="text-xs font-medium">
+              {count}
+            </motion.span>
+          </AnimatePresence>
         </button>
 
         <AnimatePresence>
@@ -225,7 +217,11 @@ const HeartButton = React.forwardRef<HTMLButtonElement, HeartButtonProps>(
                   className="absolute w-1 h-1 rounded-full bg-red-500"
                   initial={animations.particle(i).initial}
                   animate={animations.particle(i).animate}
-                  transition={{ duration: 0.8, delay: i * 0.05, ease: "easeOut" }}
+                  transition={{
+                    duration: 0.8,
+                    delay: i * 0.05,
+                    ease: "easeOut",
+                  }}
                 />
               ))}
             </motion.div>
